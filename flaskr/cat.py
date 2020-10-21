@@ -7,18 +7,28 @@ from flask import (
 )
 
 from flaskr.db import CategoryNode, CategoryLeaf, User
-from flaskr.auth import login_required
+from flaskr.auth import login_required, user_logging
 
 bp = Blueprint('cat', __name__, url_prefix='/classes')
 
+def CategoryNodetoJSON(cat):
+    data = json.loads(cat.to_json())
+    data['created'] = cat.created.strftime("%Y-%m-%d (%H:%M)")
+    data['creator'] = cat.creator.uname if cat.creator is not None else None
+    data['editors'] = [ u.uname for u in cat.editors ]
+    data['parent'] = cat.parent.cname if cat.parent is not None else None
+    data['children'] = [{ 'cname': c.cname, 'cid': c.cid} for c in cat.children] if cat.children is not None else []
+    data['last_updated'] = cat.last_updated.strftime("%Y-%m-%d %H:%M") if cat.last_updated is not None else ''
+    
+    return data
 
 class CategoryAPI(MethodView):
-    success_code = 200
-    error_code = 400
+    stat_code = 200
     message = ''
     data = None
     
     def get(self, cid):
+        self.stat_code = 200
         is_error = False
         if cid is not None :
             # return category info
@@ -29,21 +39,14 @@ class CategoryAPI(MethodView):
 
                 self.data = None
                 self.message = f'Category {cid} not found!'
-                self.error = 404
+                self.stat_code = 404
                 is_error = True
 
             else:
                 cat.view_cnt += 1
                 cat.save()
 
-                data = json.loads(cat.to_json())
-                data['created'] = cat.created.strftime("%Y-%m-%d %H:%M")
-                data['editors'] = [ u.uname for u in cat.editors ]
-                data['parent'] = cat.parent.cname if cat.parent is not None else None
-                if cat.last_updated is not None:
-                    data['last_updated'] = cat.last_updated.strftime("%Y-%m-%d %H:%M")
-
-
+                data = CategoryNodetoJSON(cat)
                 self.data = data
                 self.message = f'Get category {cat.cname} successfully!'
 
@@ -54,27 +57,21 @@ class CategoryAPI(MethodView):
             cat = CategoryNode.objects()
             data = []
             for c in cat:
-                cat_dict = json.loads(c.to_json())
-                cat_dict['created'] = c.created.strftime("%Y-%m-%d (%H:%M)")
-                cat_dict['editors'] = [ u.uname for u in c.editors ]
-                cat_dict['parent'] = c.parent.cname if c.parent is not None else None
-                if c.last_updated is not None:
-                    cat_dict['last_updated'] = c.last_updated.strftime("%Y-%m-%d %H:%M")
-                data.append(data)
+                cat_dict = CategoryNodetoJSON(c)
+                data.append(cat_dict)
             self.data = data
             self.message = f'Get all categories successfully!'
-            pass
 
         if is_error:
             return jsonify({
                 'data': self.data,  \
                 'message': self.message
-            }), self.error_code
+            }), self.stat_code
         else:
             return jsonify({
                 'data': self.data,  \
                 'message': self.message
-            }), self.success_code
+            }), self.stat_code
 
 
     def post(self, cid):
@@ -91,76 +88,84 @@ class CategoryAPI(MethodView):
         #   'data'      : None,
         #   'message'   : String
         # } w/ status code
-        is_error = False
+        self.stat_code = 201
 
-        cname = str(request.form['cname'])
-        is_root = bool(request.form['is_root'])
-        parent = str(request.form['parent_name']) if not is_root else None
-        seeds = request.form['seeds'] if not is_root else None
-        terms = request.form['terms'] if not is_root else None
-        mutex = bool(request.form['mutex']) if is_root else None
+        cname = request.form['cname']
+        is_root = True if request.form['is_root'] == 'True' or request.form['is_root'] == 'true' else False
+        parent = request.form['parent_name'] if not is_root else ''
+        seeds = list(set(request.form['seeds'].split(','))) if not is_root else None
+        terms = list(set(request.form['terms'].split(','))) if not is_root else None
+        mutex = True if request.form['mutex'] == 'True' or request.form['mutex'] == 'true' else False
 
         if type(cname) is not str or type(is_root) is not bool:
-            is_error = True
             self.message = 'Request type error!'
             self.data = None
+            self.stat_code = 400
 
         elif (not is_root and parent is None) or (is_root and mutex is None):
-            is_error = True
             self.message = 'Request params error!'
             self.data = None
+            self.stat_code = 400
 
         else:
             # Check cname
             cat_cnt = CategoryNode.objects(cname=cname).count()
             if cat_cnt > 0 :
-                is_error = True
                 self.message = f'Category {cname} exists!'
                 self.data = None
+                self.stat_code = 400
             else:
-                if is_root:
-                    new_cat = CategoryNode( cid=uuid.uuid4(), cname=cname,              \
-                                            is_root=is_root, child_mutex=mutex,         \
-                                            root_cat=cname, view_cnt=0, edit_cnt=0,     \
-                                            creator=g.user, editors=[g.user],           \
-                                            created=datetime.now(), published=True
-                                           )
-                    new_cat.save()
-                    self.message = f'Category {cname} is created successfully!'
-                    self.data = None
-                else:
-                    seeds = [] if seeds is None else ([seeds] if type(seeds) is str else seeds)
-                    terms = [] if terms is None else ([terms] if type(terms) is str else terms)
-                    parent_cat = CategoryNode.objects(cname=parent).first()
-                    if parent_cat is None:
-                        is_error = True
-                        self.message = f'Parent category {cname} not found!'
-                        self.data = None
-                    else:
-                        new_cat = CategoryLeaf( cid=uuid.uuid4(), cname=cname,              \
+                try:
+                    if is_root:
+                        new_cat = CategoryNode( cid=uuid.uuid4(), cname=cname,              \
                                                 is_root=is_root, child_mutex=mutex,         \
-                                                root_cat=parent_cat.root_cat, view_cnt=0, edit_cnt=0,     \
+                                                root_cat=cname, view_cnt=0, edit_cnt=0,     \
                                                 creator=g.user, editors=[g.user],           \
-                                                created=datetime.now(), parent=parent_cat,  \
-                                                published=True
+                                                created=datetime.now(), published=True
                                             )
-                                            
                         new_cat.save()
                         self.message = f'Category {cname} is created successfully!'
-                        self.data = None
+                        self.data = {
+                            'cid': new_cat.cid,
+                            'cname' : new_cat.cname
+                        }
+                    else:
+                        seeds = [] if seeds is None else ([seeds] if type(seeds) is str else seeds)
+                        terms = [] if terms is None else ([terms] if type(terms) is str else terms)
 
+                        parent_cat = CategoryNode.objects(cname=parent).first()
+                        if parent_cat is None:
+                            self.message = f'Parent category {parent} not found!'
+                            self.data = None
+                            self.stat_code = 404
 
-        if is_error:
-            return jsonify({
-                'data'      : self.data,    \
-                'message'   : self.message  \
-            }), self.error_code
-        else:                
-            ### TODO: Add user log
-            return jsonify({
-                'data'      : self.data,    \
-                'message'   : self.message  \
-            }), self.success_code
+                        else:
+                            new_cat = CategoryLeaf( cid=uuid.uuid4(), cname=cname,              \
+                                                    is_root=is_root, child_mutex=mutex,         \
+                                                    root_cat=parent_cat.root_cat, view_cnt=0, edit_cnt=0,     \
+                                                    creator=g.user, editors=[g.user],           \
+                                                    created=datetime.now(), parent=parent_cat,  \
+                                                    published=True
+                                                )
+                                                
+                            new_cat.save()
+                            parent_cat.update(add_to_set__children=[new_cat])
+                            self.message = f'Category {cname} is created successfully!'
+                            self.data = {
+                                'cid': new_cat.cid,
+                                'cname' : new_cat.cname,
+                                'parent': new_cat.parent.cname
+                            }
+                except:
+                    self.data = None
+                    self.message = f'Category {cname} insert error!'
+                    self.stat_code = 500
+
+        ### TODO: Add user log
+        return jsonify({
+            'data'      : self.data,    \
+            'message'   : self.message  \
+        }), self.stat_code
 
 
 
@@ -170,86 +175,364 @@ class CategoryAPI(MethodView):
 
     def delete(self, cid):
         # delete a single category
-                ### Add user log
-        pass
+        ### Add user log
+        return jsonify({
+            'data'      : None,    \
+            'message'   : 'Not implement'  \
+        }), 501
 
     def put(self, cid):
         # update a single category
-        ### Add user log
-        pass
+        self.stat_code = 201
+        editor = g.user
+        cat = CategoryNode.objects(cid=cid).first()
+
+        if cat is None:
+            self.data = None
+            self.message = f'Category not found'
+            self.stat_code = 404
+
+        else:
+            
+            cname = request.form['cname']
+            parent = request.form['parent_name'] 
+            mutex = request.form['mutex']
+
+            if len(cname) > 0:
+                # Edit name
+                try:
+                    cat.cname = cname
+                    cat.update(cname=cname)
+                except:
+                    self.data = None
+                    self.message = f'Category {cat.cname} update name error!'
+                    self.stat_code = 500
+
+
+            if len(parent) > 0:
+                parent_cat = CategoryNode.objects(cname=parent).first()
+                
+                if parent_cat is None:
+                    self.data = None
+                    self.message = f'Parent category {parent} not found!'
+                    self.stat_code = 404
+                else:
+                    # try:
+                    cat.parent.update(pull__children=cat)
+                    parent_cat.update(add_to_set__children=[cat])
+                    cat.update(parent=parent_cat, root_cat=parent_cat.root_cat)
+                    cat.parent = parent_cat
+                    cat.root_cat = parent_cat.root_cat
+                    # except:
+                    #     self.data = None
+                    #     self.message = f'Category {cat.cname} or {parent_cat.cname} update error!'
+                    #     self.stat_code = 500
+
+            if len(mutex) > 0:
+                mutex = True if mutex == 'True' or mutex == 'true' else False
+                try:
+                    cat.child_mutex = mutex
+                    cat.update(child_mutex=mutex)
+                except:
+                    self.data = None
+                    self.message = f'Category {cat.cname} update mutex error!'
+                    self.stat_code = 500
+
+            if self.stat_code == 201:
+                cat.edit_cnt += 1
+                cat.last_updated = datetime.now()
+                cat.update(add_to_set__editors=[editor])
+
+                data = CategoryNodetoJSON(cat)
+
+
+                self.data = data
+                self.message = f'Update category {cat.cname} successfully!'
+        
+
+
+        ### TODO: Add user log
+
+        return jsonify({
+            'data': self.data,
+            'message': self.message
+        }), self.stat_code
+
 
 
 
 class CategorySeedsAPI(MethodView):
-    success_code = 200
-    error_code = 400
+    stat_code = 200
     message = ''
     data = None
    
     def get(self, cid):
+        self.stat_code = 200
         if cid is not None :
-            # return the info of that category's seeds 
-            pass
+            # return the info of that category's seeds
+            cat = CategoryLeaf.objects(cid=cid).only('cid').only('cname').only('seeds').first()
+            if cat is None:
+                self.data = None
+                self.message = 'Category not found!'
+                self.stat_code = 404
+            else:
+                self.data = {
+                    'cname': cat.cname,
+                    'cid': cat.cid,
+                    'seeds': cat.seeds
+                }
+                self.message = f'Get category {cat.cname}\'s seeds!'
+            
         else:
             # return the info of all categories' seeds
-            pass
+            root_cat = request.args['rcat']
+            cats = CategoryLeaf.objects().only('cid').only('cname').only('seeds')
+            if len(root_cat) > 0:
+                cats = CategoryLeaf.objects(root_cat=root_cat).only('cid').only('cname').only('seeds')
+            if cats is None:
+                self.data = None
+                self.message = 'Category empty!'
+                self.stat_code = 404
+            else:
+                datas = []
+                for cat in cats:
+                    data = {
+                        'cname': cat.cname,
+                        'cid': cat.cid,
+                        'seeds': cat.seeds
+                    }
+                    datas.append(data)
+                self.data = datas
+                self.message = f'Get all category seeds!'
+        
+        return jsonify({
+            'data': self.data,
+            'message': self.message
+        }), self.stat_code
+
+
     def post(self, cid):
         # create a/many new seeds
+        editor = g.user
+        self.stat_code = 201
+        seeds = request.form['seeds']
+
+        if len(seeds) < 1:
+            self.data = None
+            self.message = 'Parameter seeds can not be empty!'
+            self.stat_code = 400
+        
+        else:
+            cat = CategoryLeaf.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt').first()
+            if cat is None:
+                is_error = True
+                self.data = None
+                self.message = 'Category not found!'
+                self.stat_code = 404
+            else:
+                seeds = seeds.split(',')
+                cat.update(add_to_set__seeds=seeds)
+                cat.update(pull_all__remove_terms=seeds)
+                cat.update(set__edit_cnt=(cat.edit_cnt + 1))
+                cat.update(set__last_updated=datetime.now())
+                cat.update(add_to_set__editors=[editor])
+                self.data = {
+                    'cid' : cat.cid,
+                    'cname' : cat.cname,
+                    'seeds' : cat.seeds
+                }
+                self.message = f'Add {cat.cname}\'s seeds successfully!'
 
         return jsonify({
-                'data': self.data,   \
-                'message' : 'Success to add seed(s)'
-            }), 200
-        pass
+            'data': self.data,   \
+            'message' : self.message
+        }), self.stat_code
 
     def delete(self, cid):
         # delete a single seed
-        pass
+        editor = g.user
+        self.stat_code = 200
+        seeds = request.form['seeds']
+        
 
-    def put(self, cid):
-        # update a single seed
-        pass
+        if len(seeds) < 1:
+            self.data = None
+            self.message = 'Parameter seeds can not be empty!'
+            self.stat_code = 400
+        
+        else:
+            cat = CategoryLeaf.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt').first()
+            if cat is None:
+                self.data = None
+                self.message = 'Category not found!'
+                self.stat_code = 404
+            else:
+                # try:
+                seeds = seeds.split(',')
+                cat.update(pull_all__seeds=seeds)
+                cat.update(add_to_set__remove_terms=seeds)
+                cat.update(set__edit_cnt=(cat.edit_cnt + 1))
+                cat.update(set__last_updated=datetime.now())
+                cat.update(add_to_set__editors=[editor])
+                self.data = {
+                    'cid' : cat.cid,
+                    'cname' : cat.cname,
+                    'seeds' : cat.seeds
+                }
+                self.message = f'Remove part of {cat.cname}\'s seeds successfully!'
+                # except:
+                #     self.data = None
+                #     self.message = f'Remove part of {cat.cname}\'s seeds error!'
+                #     self.stat_code = 500
+
+
+        return jsonify({
+            'data': self.data,   \
+            'message' : self.message
+        }), self.stat_code
+
+
 
 
 class CategoryTermsAPI(MethodView):
-    success_code = 200
-    error_code = 400
+    stat_code = 200
     message = ''
     data = None
     
     def get(self, cid):
+        self.code = 200
         if cid is not None :
-            # return the info of that category's terms 
-            pass
+            # return the info of that category's terms
+            cat = CategoryLeaf.objects(cid=cid).only('cid').only('cname').only('terms').only('edit_cnt').first()
+            if cat is None:
+                self.data = None
+                self.message = 'Category not found!'
+                self.stat_code = 404
+            else:
+                self.data = {
+                    'cname': cat.cname,
+                    'cid': cat.cid,
+                    'terms': cat.terms
+                }
+                self.message = f'Get category {cat.cname}\'s terms!'
         else:
             # return the info of all categories' terms
-            pass
+            cats = CategoryLeaf.objects().only('cid').only('cname').only('terms')
+            if cats is None:
+                self.data = None
+                self.message = 'Category empty!'
+                self.stat_code = 404
+            else:
+                datas = []
+                for cat in cats:
+                    data = {
+                        'cname': cat.cname,
+                        'cid': cat.cid,
+                        'terms': cat.terms
+                    }
+                    datas.append(data)
+                self.data = datas
+                self.message = f'Get all category terms!'
+        
+        return jsonify({
+            'data': self.data,
+            'message': self.message
+        }), self.stat_code
 
 
     def post(self, cid):
         # create a/many new terms
-        pass
+        editor = g.user
+        self.stat_code = 201
+        terms = request.form['terms']
+
+        if len(terms) < 1:
+            self.data = None
+            self.message = 'Parameter terms can not be empty!'
+            self.stat_code = 400
+        
+        else:
+            cat = CategoryNode.objects(cid=cid).only('terms').only('cname').only('cid').only('edit_cnt').first()
+            if cat is None:
+                is_error = True
+                self.data = None
+                self.message = 'Category not found!'
+                self.stat_code = 404
+            else:
+                terms = terms.split(',')
+                cat.update(add_to_set__terms=terms)
+                cat.update(pull_all__remove_terms=terms)
+                cat.update(set__edit_cnt=(cat.edit_cnt + 1))
+                cat.update(set__last_updated=datetime.now())
+                cat.update(add_to_set__editors=[editor])
+                self.data = {
+                    'cid' : cat.cid,
+                    'cname' : cat.cname,
+                    'terms' : cat.terms
+                }
+                self.message = f'Add {cat.cname}\'s terms successfully!'
+
+        return jsonify({
+            'data': self.data,   \
+            'message' : self.message
+        }), self.stat_code
 
     def delete(self, cid):
         # delete a single term
-        pass
+        editor = g.user
+        self.stat_code = 200
+        terms = request.form['terms']
+        
 
-    def put(self, cid):
-        # update a single term
-        pass
+        if len(terms) < 1:
+            self.data = None
+            self.message = 'Parameter terms can not be empty!'
+            self.stat_code = 400
+        
+        else:
+            cat = CategoryLeaf.objects(cid=cid).only('terms').only('cname').only('cid').only('edit_cnt').first()
+            if cat is None:
+                self.data = None
+                self.message = 'Category not found!'
+                self.stat_code = 404
+            else:
+                try:
+                    terms = terms.split(',')
+                    cat.update(pull_all__terms=terms)
+                    cat.update(add_to_set__remove_terms=terms)
+                    cat.update(set__edit_cnt=(cat.edit_cnt + 1))
+                    cat.update(set__last_updated=datetime.now())
+                    cat.update(add_to_set__editors=[editor])
+                    self.data = {
+                        'cid' : cat.cid,
+                        'cname' : cat.cname,
+                        'terms' : cat.terms
+                    }
+                    self.message = f'Remove part of {cat.cname}\'s seeds successfully!'
+                except:
+                    self.data = None
+                    self.message = f'Remove part of {cat.cname}\'s seeds error!'
+                    self.stat_code = 500
+
+
+        return jsonify({
+            'data': self.data,   \
+            'message' : self.message
+        }), self.stat_code
 
 
 
-category_view = login_required(CategoryAPI.as_view('category_api'))
-category_seeds_view = login_required(CategorySeedsAPI.as_view('category_seeds_api'))
-category_terms_view = login_required(CategoryTermsAPI.as_view('category_terms_api'))
+
+category_view = user_logging(login_required(CategoryAPI.as_view('category_api')))
+category_seeds_view = user_logging(login_required(CategorySeedsAPI.as_view('category_seeds_api')))
+category_terms_view = user_logging(login_required(CategoryTermsAPI.as_view('category_terms_api')))
 
 bp.add_url_rule('/', defaults={"cid": None}, view_func=category_view, methods=['GET', 'POST'])
 bp.add_url_rule('/<string:cid>', view_func=category_view, methods=['GET', 'PUT', 'DELETE'])
 bp.add_url_rule('/seeds', defaults={"cid": None}, view_func=category_seeds_view, methods=['GET'])
-bp.add_url_rule('/<string:cid>/seeds', view_func=category_seeds_view, methods=['GET', 'POST', 'PUT', 'DELETE'])
+bp.add_url_rule('/<string:cid>/seeds', view_func=category_seeds_view, methods=['GET', 'POST', 'DELETE'])
 bp.add_url_rule('/terms', defaults={"cid": None}, view_func=category_terms_view, methods=['GET'])
-bp.add_url_rule('/<string:cid>/terms', view_func=category_terms_view, methods=['GET', 'POST', 'PUT', 'DELETE'])
+bp.add_url_rule('/<string:cid>/terms', view_func=category_terms_view, methods=['GET', 'POST', 'DELETE'])
 
 
 
@@ -274,3 +557,26 @@ def getCategoryList():
             'message' : 'Get category list successfully!'
         }), 200
         
+@bp.route('/stat', methods=['GET'])
+@user_logging
+def getCategoryStat():
+    cats = CategoryNode.objects(is_root=True).all_fields()
+
+    datas = []
+    ### TODO: change to recursive
+    for cat in cats:
+        child_cats = CategoryNode.objects(parent__exists=True, parent=cat).exclude('seeds').exclude('terms').exclude('remove_terms')
+        
+        data = CategoryNodetoJSON(cat)
+        data['children'] = []
+        for c in child_cats:
+            cat_dict = CategoryNodetoJSON(c)
+            data['children'].append(cat_dict)
+        datas.append(data)
+        
+    
+    return jsonify({
+            'data': datas,   \
+            'message' : 'Get category stat successfully!'
+        }), 200
+
