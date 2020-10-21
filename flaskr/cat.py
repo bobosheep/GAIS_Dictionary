@@ -333,7 +333,7 @@ class CategorySeedsAPI(MethodView):
                 seeds = seeds.split(',')
                 cat.update(add_to_set__seeds=seeds)
                 cat.update(pull_all__remove_terms=seeds)
-                cat.update(set__edit_cnt=(cat.edit_cnt + 1))
+                cat.update(inc__edit_cnt=1)
                 cat.update(set__last_updated=datetime.now())
                 cat.update(add_to_set__editors=[editor])
                 self.data = {
@@ -371,7 +371,7 @@ class CategorySeedsAPI(MethodView):
                 seeds = seeds.split(',')
                 cat.update(pull_all__seeds=seeds)
                 cat.update(add_to_set__remove_terms=seeds)
-                cat.update(set__edit_cnt=(cat.edit_cnt + 1))
+                cat.update(inc__edit_cnt=1)
                 cat.update(set__last_updated=datetime.now())
                 cat.update(add_to_set__editors=[editor])
                 self.data = {
@@ -462,7 +462,7 @@ class CategoryTermsAPI(MethodView):
                 terms = terms.split(',')
                 cat.update(add_to_set__terms=terms)
                 cat.update(pull_all__remove_terms=terms)
-                cat.update(set__edit_cnt=(cat.edit_cnt + 1))
+                cat.update(inc__edit_cnt=1)
                 cat.update(set__last_updated=datetime.now())
                 cat.update(add_to_set__editors=[editor])
                 self.data = {
@@ -490,7 +490,7 @@ class CategoryTermsAPI(MethodView):
             self.stat_code = 400
         
         else:
-            cat = CategoryLeaf.objects(cid=cid).only('terms').only('cname').only('cid').only('edit_cnt').first()
+            cat = CategoryLeaf.objects(cid=cid).only('terms').only('cname').only('cid').first()
             if cat is None:
                 self.data = None
                 self.message = 'Category not found!'
@@ -500,7 +500,7 @@ class CategoryTermsAPI(MethodView):
                     terms = terms.split(',')
                     cat.update(pull_all__terms=terms)
                     cat.update(add_to_set__remove_terms=terms)
-                    cat.update(set__edit_cnt=(cat.edit_cnt + 1))
+                    cat.update(inc__edit_cnt=1)
                     cat.update(set__last_updated=datetime.now())
                     cat.update(add_to_set__editors=[editor])
                     self.data = {
