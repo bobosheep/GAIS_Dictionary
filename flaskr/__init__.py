@@ -26,7 +26,6 @@ def start_app(config=None):
 
     # Auth
     app.register_blueprint(auth.bp)
-    tokens = auth.tokens
 
 
     # Category API
@@ -44,13 +43,16 @@ def start_app(config=None):
     # Other API
     
     @app.route("/<regex(r'(.*?)\.(json|txt|png|ico|js|css|jpg)$'):file>", methods=["GET"])
+    @auth.user_logging
     def public(file):
-        return send_from_directory('static', file)     
+        return send_from_directory('static', file), 200
     @app.route('/', methods=['GET'])
     @app.route('/home', methods=['GET'])
+    @auth.user_logging
     def mainpage():
-        return render_template('index.html')
+        return render_template('index.html'), 200
     @app.errorhandler(404)
+    @auth.user_logging
     def page_not_found(e):
         return render_template('index.html'), 404
     
