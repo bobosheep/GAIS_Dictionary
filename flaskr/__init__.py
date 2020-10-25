@@ -15,11 +15,11 @@ class RegexConverter(BaseConverter):
 def start_app(config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    if config['CORS']:
-        CORS(app)
     app.config['JSON_AS_ASCII'] = False
     app.debug = config['DEBUG']
     app.config['SECRET_KEY'] = config['SECRET_KEY']
+    if config['CORS']:
+        CORS(app, supports_credentials=True)
 
     app.url_map.converters['regex'] = RegexConverter
 
