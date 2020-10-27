@@ -51,6 +51,11 @@ class CategoryAPI(MethodView):
                 self.message = f'Get category {cat.cname} successfully!'
 
                 ### TODO: Add user log
+            return jsonify({
+                'data': self.data,  \
+                'message': self.message
+            }), self.stat_code
+
 
         else:
             # return all category info
@@ -62,17 +67,10 @@ class CategoryAPI(MethodView):
             self.data = data
             self.message = f'Get all categories successfully!'
 
-        if is_error:
             return jsonify({
-                'data': self.data,  \
+                'datas': self.data,  \
                 'message': self.message
             }), self.stat_code
-        else:
-            return jsonify({
-                'data': self.data,  \
-                'message': self.message
-            }), self.stat_code
-
 
     def post(self, cid):
         # create a new category
@@ -281,7 +279,12 @@ class CategorySeedsAPI(MethodView):
                     'cid': cat.cid,
                     'seeds': cat.seeds
                 }
-                self.message = f'Get category {cat.cname}\'s seeds!'
+                self.message = f'Get category {cat.cname}\'s seeds!'    
+
+            return jsonify({
+                'data': self.data,
+                'message': self.message
+            }), self.stat_
             
         else:
             # return the info of all categories' seeds
@@ -304,11 +307,11 @@ class CategorySeedsAPI(MethodView):
                     datas.append(data)
                 self.data = datas
                 self.message = f'Get all category seeds!'
-        
-        return jsonify({
-            'data': self.data,
-            'message': self.message
-        }), self.stat_code
+            
+            return jsonify({
+                'datas': self.data,
+                'message': self.message
+            }), self.stat_code
 
 
     def post(self, cid):
@@ -417,6 +420,7 @@ class CategoryTermsAPI(MethodView):
                 self.message = f'Get category {cat.cname}\'s terms!'
         else:
             # return the info of all categories' terms
+            root_cat = request.args['rcat']
             cats = CategoryLeaf.objects().only('cid').only('cname').only('terms')
             if cats is None:
                 self.data = None
@@ -553,7 +557,7 @@ def getCategoryList():
         
     
     return jsonify({
-            'data': datas,   \
+            'datas': datas,   \
             'message' : 'Get category list successfully!'
         }), 200
         
@@ -576,7 +580,7 @@ def getCategoryStat():
         
     
     return jsonify({
-            'data': datas,   \
+            'datas': datas,   \
             'message' : 'Get category stat successfully!'
         }), 200
 

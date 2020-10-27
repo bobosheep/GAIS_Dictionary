@@ -19,6 +19,10 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def user_logging(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
+        user = g.user
+        username = 'Guest' if user is None else user.uname
+
+
         response = view(**kwargs)
 
         method = {
@@ -35,8 +39,6 @@ def user_logging(view):
             'DELETE': 1
         }
 
-        user = g.user
-        username = 'Guest' if user is None else user.uname
         user_ip = request.host
         action_time = datetime.now().strftime("%Y-%m-%d %H:%M")
         action_part = request.path
@@ -169,21 +171,12 @@ def login():
             session['user_id'] = user.uid
             user.last_login = datetime.now()
             g.user = user
-            # md5 = hashlib.md5()
-            # user_str = user.uname + datetime.now().strftime('%m/%d/%Y %H:%M:%S')
-            # md5.update(s.encode('utf-8'))
-            # auth_token = md5.hexdigest()
-            # if user_token.get(user.uid) is None:
-            #     user_token[user.uid] = auth_token
-            #     tokens[auth_token] = user.uid
-            # else:
-            #     del tokens[user_token[user.uid]]
-            #     user_token[user.uid] = auth_token
-            #     tokens[auth_token] = user.uid
             return jsonify({
                 'data' : {
                     'name': user.uname,\
                     'display_name': user.display_name,\
+                    'level': user.level,\
+                    'avatar': user.avatar
                     # 'token': auth_token
                 }, \
                 'message': f'User {username} log in success!'
@@ -203,12 +196,11 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = User.objects(uid=user_id).first()
-        print(f'Hello {g.user.uname}')
   
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.user is None:
+        if g.user is None and request.method != 'GET':
             return  jsonify({
                         'data' : None,
                         'message': 'Auth error'
