@@ -9,7 +9,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.db import User, CategoryNode
+from flaskr.db import User, CategoryNode, UserLog
 
 tokens = dict()
 user_token = dict()
@@ -19,8 +19,6 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def user_logging(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        user = g.user
-        username = 'Guest' if user is None else user.uname
 
 
         response = view(**kwargs)
@@ -41,70 +39,97 @@ def user_logging(view):
 
         user_ip = request.host
         action_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-        action_part = request.path
+        action_part_str = request.path
         action = method[request.method]
         level = LEVEL[request.method] if response[1] / 100  < 5 else 2
         print_level = 'INFO' if level == 0 else 'WARN' if level == 1 else 'ERROR'
-        request_failed = '成功' if response[1] / 100 < 3 else '失敗'
+        stat = True if response[1] / 100 < 3 else False
+        request_failed = '成功' if stat else '失敗'
+        user = g.user
+        username = 'Guest' if user is None else user.uname
+        action_part = None
         
         if request.blueprint == 'auth':
             if request.endpoint == 'auth.login':
-                action_part = ''
+                action_part_str = ''
                 action = '登入'
             elif request.endpoint == 'auth.logout':
-                action_part = ''
+                action_part_str = ''
                 action = '登出'
 
             
         elif request.blueprint == 'cat':
             if request.endpoint == 'cat.category_api':
-                args = action_part.split('/')
+                args = action_part_str.split('/')
                 if len(args) > 2:
                     part = args[2] 
                     cat = CategoryNode.objects(cid=part).first()
+                    action_part = cat
                     if part == '':
-                        action_part = '全部類別'
+                        action_part_str = '全部類別'
                     elif cat is not None:
-                        action_part = cat.cname +' 類別'
+                        action_part = cat
+                        action_part_str = cat.cname +' 類別'
                     else:
-                        action_part = '未定義類別'
+                        action_part_str = '未定義類別'
                     if request.method == 'POST':
-                        action_part = request.form['cname']
+                        action_part = cat
+                        action_part_str = request.form['cname']
                     
             elif request.endpoint == 'cat.category_seeds_api':
-                args = action_part.split('/')
+                args = action_part_str.split('/')
                 if len(args) > 2:
                     part = args[2] 
                     cat = CategoryNode.objects(cid=part).first()
+                    
                     if part == 'seeds':
-                        action_part = '全部類別的種子'
+                        action_part_str = '全部類別的種子'
                     elif cat is not None:
-                        action_part = cat.cname +' 類別的種子'
+                        action_part = cat
+                        action_part_str = cat.cname +' 類別的種子'
                     else:
-                        action_part = '未定義類別'
+                        action_part_str = '未定義類別'
                     if request.method == 'POST' or request.method == 'DELETE':
-                        action_part = cat.cname +'的種子 ' + request.form['seeds']
+                        action_part = cat
+                        action_part_str = cat.cname +'的種子 ' + request.form['seeds']
                     
             elif request.endpoint == 'cat.category_terms_api':
-                args = action_part.split('/')
+                args = action_part_str.split('/')
                 if len(args) > 2:
                     part = args[2] 
                     cat = CategoryNode.objects(cid=part).first()
                     if part == 'seeds':
-                        action_part = '全部類別的種子'
+                        action_part_str = '全部類別的詞'
                     elif cat is not None:
-                        action_part = cat.cname +' 類別的種子'
+                        action_part_str = cat.cname +' 類別的詞'
                     else:
-                        action_part = '未定義類別'
+                        action_part_str = '未定義類別'
                     if request.method == 'POST' or request.method == 'DELETE':
-                        action_part = cat.cname +'的詞 ' + request.form['terms']
+                        action_part_str = cat.cname +'的詞 ' + request.form['terms']
             elif request.endpoint == 'cat.getCategoryStat':
-                action_part = '目前類別狀態'
+                action_part_str = '目前類別狀態'
         else:
             pass
 
-        print(f'[{print_level}] User {username} {action} {action_part} {request_failed} @ {action_time} from {user_ip}')
-        
+        print(f'[{print_level}] User {username} {action} {action_part_str} {request_failed} @ {action_time} from {user_ip}')
+        description = f'使用者\"{username}\"{action}{action_part_str}{request_failed}@{action_time}從 ip:{user_ip}。'
+        userlog = UserLog(  level=level, action=action, 
+                            action_time=action_time, 
+                            action_part=action_part, 
+                            action_stat=stat, 
+                            action_description=description,
+                            user=g.user, user_ip=user_ip)
+        userlog.save()
+    # level = IntField()          # 0: INFO, 1: WARN, 2:ERROR, 3: FATAL 
+    # action = IntField()         # 0: GET, 1: POST, 2: PUT, 3: DELETE
+    # action_time = DateTimeField()
+    # action_part_str = GenericReferenceField()
+    # action_description = StringField()
+    # action_stat = BooleanField()
+    # user = ReferenceField(User)
+    # user_ip = StringField()
+
+
         return response
     return wrapped_view
 

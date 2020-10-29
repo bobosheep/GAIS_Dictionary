@@ -18,14 +18,38 @@ class User(DynamicDocument):
 
 class UserLog(Document):
     level = IntField()          # 0: INFO, 1: WARN, 2:ERROR, 3: FATAL 
-    action = IntField()         # 0: GET, 1: POST, 2: PUT, 3: DELETE
+    action = StringField()         # GET, POST, PUT, DELETE
     action_time = DateTimeField()
     action_part = GenericReferenceField()
     action_description = StringField()
     action_stat = BooleanField()
     user = ReferenceField(User)
     user_ip = StringField()
+    
+    @queryset_manager
+    def objects(doc_cls, queryset):
+        # This may actually also be done by defining a default ordering for
+        # the document, but this illustrates the use of manager methods
+        return queryset.order_by('-date')
 
+    @queryset_manager
+    def this_week_actions(doc_cls, queryset):
+        isocalendar = datetime.now().isocalendar()
+        day_count = datetime.now().toordinal()
+        week_start = datetime.fromordinal(day_count - isocalendar[2] + 1)
+        week_end = datetime.fromordinal(day_count - isocalendar[2] + 7)
+
+        return queryset.filter(Q(action_time__gte=week_start) & Q(action_time__lt=week_end))
+
+    @queryset_manager
+    def this_month_actions(doc_cls, queryset):
+        now = datetime.now()
+        day = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        day[1] = 29 if now.year % 400 == 0 or (now.year % 100 != 0  and now.year % 4 == 0) else 28
+        month_start = datetime(now.year, now.month, 1)
+        month_end = datetime(now.year, now.month, day[now.month], 23, 59, 59)
+
+        return queryset.filter(Q(action_time__gte=month_start) & Q(action_time__lte=month_end))
 
 
 class Term(Document):
