@@ -3,23 +3,26 @@ from datetime import datetime
 connect('test', host='localhost', port=27017)
 
 class User(DynamicDocument):
-    uid = UUIDField(binary=False)
+    uid = StringField(primary_key=True)
     social_uid = StringField()
     uname = StringField(unique=True)
     display_name = StringField(max_length=12, min_length=2)
     password = StringField()
     level = IntField(min_value=0, max_value=5)
     activated = BooleanField(default=False)
-    regist_date = DateTimeField()
+    register_time = DateTimeField()
+    register_date = DateField()
     last_login = DateTimeField()
     email = EmailField()
     avatar = StringField()
     prefer = DictField()
 
 class UserLog(Document):
+    log_id = StringField(primary_key=True)
     level = IntField()          # 0: INFO, 1: WARN, 2:ERROR, 3: FATAL 
     action = StringField()         # GET, POST, PUT, DELETE
     action_time = DateTimeField()
+    action_date = DateField()
     action_part = GenericReferenceField()
     action_description = StringField()
     action_stat = BooleanField()
@@ -30,7 +33,7 @@ class UserLog(Document):
     def objects(doc_cls, queryset):
         # This may actually also be done by defining a default ordering for
         # the document, but this illustrates the use of manager methods
-        return queryset.order_by('-date')
+        return queryset.order_by('-action_date')
 
     @queryset_manager
     def this_week_actions(doc_cls, queryset):
@@ -51,17 +54,30 @@ class UserLog(Document):
 
         return queryset.filter(Q(action_time__gte=month_start) & Q(action_time__lte=month_end))
 
+class Report(Document):
+    report_id = StringField(primary_key=True)
+    user = ReferenceField(User)
+    report_time = DateTimeField()
+    report_date = DateField()
+    report_content = StringField()
+    report_status = IntField()      # 0: Not processing 1: Processing 2: Processed
+    report_reply = StringField()
+
+    @queryset_manager
+    def objects(doc_cls, queryset):
+        return queryset.order_by('+report_date', '-report_status')
+
+
 
 class Term(Document):
-    tid = UUIDField(binary=False)
     tname = StringField(unique=True)
 
     meta = {'allow_inheritance': True}
 
 
 class Category(Document):
-    cid = UUIDField(binary=False)
-    cname = StringField(unique=True)
+    cid = StringField(primary_key=True)
+    cname = StringField()
     created = DateTimeField()
     last_updated = DateTimeField()
     is_root = BooleanField()

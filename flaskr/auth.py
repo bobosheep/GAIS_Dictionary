@@ -113,22 +113,13 @@ def user_logging(view):
 
         print(f'[{print_level}] User {username} {action} {action_part_str} {request_failed} @ {action_time} from {user_ip}')
         description = f'使用者\"{username}\"{action}{action_part_str}{request_failed}@{action_time}從 ip:{user_ip}。'
-        userlog = UserLog(  level=level, action=action, 
+        userlog = UserLog(  log_id=str(uuid.uuid4())[:8], level=level, action=action, 
                             action_time=action_time, 
                             action_part=action_part, 
                             action_stat=stat, 
                             action_description=description,
                             user=g.user, user_ip=user_ip)
         userlog.save()
-    # level = IntField()          # 0: INFO, 1: WARN, 2:ERROR, 3: FATAL 
-    # action = IntField()         # 0: GET, 1: POST, 2: PUT, 3: DELETE
-    # action_time = DateTimeField()
-    # action_part_str = GenericReferenceField()
-    # action_description = StringField()
-    # action_stat = BooleanField()
-    # user = ReferenceField(User)
-    # user_ip = StringField()
-
 
         return response
     return wrapped_view
@@ -240,6 +231,8 @@ def admin_only(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None or g.user.level > 0:
+            print(g.user.uname)
+            print(g.user.level)
             return  jsonify({
                         'data' : None,
                         'message': 'Auth error'

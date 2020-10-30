@@ -4,7 +4,7 @@ from flask import Flask, request, Response , render_template,url_for, jsonify, s
 from flask_cors import CORS
 from werkzeug.routing import BaseConverter
 
-from . import auth, cat
+from . import auth, cat, admin
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -38,7 +38,9 @@ def start_app(config=None):
 
     # Dictionary API
 
-    
+
+    # Admin API
+    app.register_blueprint(admin.bp)    
 
     # Other API
     
