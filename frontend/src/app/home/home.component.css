@@ -1,0 +1,42 @@
+.container {
+    width: 80%;
+    height: 60vh;
+    margin: 0 auto;
+}
+
+.logo {
+    width: 80%;
+    margin: 3em auto;
+    margin-top: 14em;
+}
+.logo > h1 {
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+    font-size: 26px;
+    color: #606176;
+}
+
+.search-wrapper {
+    width: 100%;
+    margin: auto;
+}
+#q_word {
+    display: flex;
+    justify-self: center;
+
+    min-width: 260px;
+    max-width: 60%;
+    margin: 1em auto;
+}
+.button-wrapper {
+    width: 50%;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+.button-wrapper > button {
+    display: flex;
+    margin: 1em;
+}

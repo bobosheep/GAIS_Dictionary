@@ -1,0 +1,62 @@
+<section class="wrapper">
+    <section class="header">
+        <h2>Dashboard</h2>
+    </section>
+    <section class="content">
+        <div class="item-wrapper">
+            <div class="wrapper">
+                <h3><a routerLink="/admin/users" routerLinkActive="'active'"> 
+                    <i nz-icon nzType="user" nzTheme="outline"></i> Users
+                </a></h3>
+                <div class="divider"></div>
+                <div class="item-content">
+                    <nz-row [nzGutter]="24" nzType="flex" nzJustify="flex-start">
+                      <nz-col [nzSpan]="6">
+                        <nz-statistic [nzValue]="userStat.activated_users | number" [nzTitle]="'Activated Users'" [nzSuffix]="'/ ' + userStat.total_users.toString()"></nz-statistic>
+                      </nz-col>
+                      <nz-col [nzSpan]="6">
+                        <nz-statistic [nzValue]="userStat.new_users | number" [nzTitle]="'本月新用戶'" ></nz-statistic>
+                      </nz-col>
+                      <nz-col [nzSpan]="6">
+                        <nz-statistic [nzValue]="userStat.editor_users | number" [nzTitle]="'Editors'" [nzSuffix]="'/ ' + userStat.total_users.toString()"></nz-statistic>
+                      </nz-col>
+                      <nz-col [nzSpan]="6">
+                        <nz-statistic [nzValue]="userStat.admins | number" [nzTitle]="'Admins'" [nzSuffix]="'/ ' + userStat.total_users.toString()"></nz-statistic>
+                      </nz-col>
+                      <nz-col [nzSpan]="6">
+                        <nz-statistic [nzValue]="userStat.week_edit / userStat.editor_users | number:'1.0-2'" [nzTitle]="'本周平均編輯次數'" [nzSuffix]="'/ 人'"></nz-statistic>
+                      </nz-col>
+                      <nz-col [nzSpan]="12">
+                        <nz-statistic [nzValue]="userStat.month_edit / userStat.editor_users | number:'1.0-2'" [nzTitle]="'本月平均編輯次數'" [nzSuffix]="'/ 人'"></nz-statistic>
+                      </nz-col>
+                    </nz-row>
+    
+                </div>
+            </div>
+        </div>
+
+        <div class="item-wrapper">
+            <div class="wrapper">
+                <h3><a>
+                    <i nz-icon nzType="book" nzTheme="outline"></i> Categories
+                </a></h3>
+            </div>
+        </div>
+        <div class="item-wrapper">
+            <div class="wrapper">
+                <h3><a>
+                    <i nz-icon nzType="read" nzTheme="outline"></i> Terms
+                </a></h3>
+                
+            </div>
+        </div>
+        <div class="item-wrapper">
+            <div class="wrapper">
+                <h3><a>
+                    <i nz-icon nzType="more" nzTheme="outline"></i> Others
+                </a></h3>
+            </div>
+        </div>
+    </section>
+
+</section>

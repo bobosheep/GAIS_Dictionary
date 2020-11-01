@@ -1,0 +1,27 @@
+
+<nav class="menu float-left">
+    <a class="title-wrapper" routerLink="/admin" routerLinkActive="active">
+        <h3>管理者介面</h3>
+        <h3>Admin Dashboard</h3>
+    </a>
+    <ul nz-menu>
+        <li nz-menu-item>
+            <a routerLink="/admin/users" routerLinkActive="active"> 
+                <i nz-icon nzType="user" nzTheme="outline"></i>Users</a>
+        </li>
+        <li nz-menu-item>
+            <a routerLink="/admin/categories" routerLinkActive="active">
+                <i nz-icon nzType="book" nzTheme="outline"></i>Categories
+            </a>            
+        </li>
+        <li nz-menu-item>
+            <a routerLink="/admin/terms" routerLinkActive="active">
+                <i nz-icon nzType="read" nzTheme="outline"></i>Terms
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<section class="content">
+    <router-outlet></router-outlet>
+</section>

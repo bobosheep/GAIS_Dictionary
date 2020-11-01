@@ -1,0 +1,58 @@
+
+<section class="wrapper">
+    <nz-page-header [nzTitle]="pageTitle">
+        <nz-page-header-content>
+            <div class="content">
+                <nz-row [nzGutter]="24" nzType="flex" nzJustify="flex-start">
+                  <nz-col class="stat-item"  [nzSpan]="6">
+                    <nz-statistic [nzValue]="statistic.activated_users | number" [nzTitle]="'Activated Users'" [nzSuffix]="'/ ' + statistic.total_users.toString()"></nz-statistic>
+                  </nz-col>
+                  <nz-col class="stat-item" [nzSpan]="6">
+                    <nz-statistic [nzValue]="statistic.new_users | number" [nzTitle]="'本月新用戶'" ></nz-statistic>
+                  </nz-col>
+                  <nz-col class="stat-item" [nzSpan]="6">
+                    <nz-statistic [nzValue]="statistic.editor_users | number" [nzTitle]="'Editors'" [nzSuffix]="'/ ' + statistic.total_users.toString()"></nz-statistic>
+                  </nz-col>
+                  <nz-col class="stat-item" [nzSpan]="6">
+                    <nz-statistic [nzValue]="statistic.admins | number" [nzTitle]="'Admins'" [nzSuffix]="'/ ' + statistic.total_users.toString()"></nz-statistic>
+                  </nz-col>
+                  <nz-col class="stat-item" [nzSpan]="6">
+                    <nz-statistic [nzValue]="statistic.week_edit / statistic.editor_users | number:'1.0-2'" [nzTitle]="'本周平均編輯次數'" [nzSuffix]="'/ 人'"></nz-statistic>
+                  </nz-col>
+                  <nz-col class="stat-item" [nzSpan]="12">
+                    <nz-statistic [nzValue]="statistic.month_edit / statistic.editor_users | number:'1.0-2'" [nzTitle]="'本月平均編輯次數'" [nzSuffix]="'/ 人'"></nz-statistic>
+                  </nz-col>
+                </nz-row>
+            </div>
+        </nz-page-header-content>
+        <nz-page-header-footer>
+            <nz-tabset 
+                [nzTabPosition]="'top'" 
+                [nzSelectedIndex]="0" 
+                (nzSelectedIndexChange)="selectPart($event)">
+                <nz-tab [nzTitle]='detailTitle' *ngFor="let detail of details; index as i">
+                    <ng-template #detailTitle>
+                        <span class="tab-title"><i nz-icon [nzType]="detailIcons[i]" nzTheme="outline"></i> {{ detail }}</span>
+                    </ng-template>
+                </nz-tab>
+          </nz-tabset>
+        </nz-page-header-footer>
+
+    </nz-page-header>
+
+    <ng-template #pageTitle>
+        <h1><i nz-icon nzType="team" nzTheme="outline"></i> Users Info</h1>
+    </ng-template>
+
+</section>
+<section class="wrapper" style="margin-top: 1.5em;">
+    <ng-template [ngIf]="selectedPage == 0">
+        <app-admin-users-table [tableData]="result.users"></app-admin-users-table>
+    </ng-template>
+    <ng-template [ngIf]="selectedPage == 1">
+        <!-- <app-admin-users-table [tableData]="result.users"></app-admin-users-table> -->
+    </ng-template>
+    <ng-template [ngIf]="selectedPage == 2">
+        <!-- <app-admin-users-table [tableData]="result.users"></app-admin-users-table> -->
+    </ng-template>
+</section>

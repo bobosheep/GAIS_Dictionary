@@ -1,0 +1,19 @@
+:host {
+    text-align: center;
+}
+.login-box {
+    width: 40%;
+    margin: 0 auto;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 1em;
+    padding-top: 3em;
+}
+.form-group {
+    text-align: center;
+    margin-top: 2em;
+}
+.action-button {
+    margin: .5em;
+    color: whitesmoke;
+}

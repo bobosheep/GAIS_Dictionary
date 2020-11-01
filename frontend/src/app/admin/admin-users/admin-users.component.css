@@ -1,0 +1,12 @@
+.wrapper {
+    width: 95%;
+    margin: 0 auto;
+}
+
+.stat-item {
+    margin-bottom: 32px;
+}
+
+.tab-title {
+    margin: 0 4px;
+}

@@ -1,0 +1,30 @@
+<div class="container">
+    <div class="login-box">
+        <h3>登入</h3>
+        <p *ngIf="message" class="text-center error">{{message}}</p>
+      <form [formGroup]="loginForm" >
+          <div class="form-group" [ngClass]="{ 'has-error': loginForm.controls.password.errors }">
+              <label for="userid" class="col-md-3 col-sm-5 col-xs-12">使用者帳號</label>
+              <div class="col-md-9 col-sm-7 col-xs-12">
+                  <input type="text" class="form-control" formControlName="userid" />
+                  <div *ngIf="loginForm.controls.userid.invalid && loginForm.controls.userid.dirty" class="help-block">
+                        <div *ngIf="loginForm.controls.userid.errors.required">帳號不能為空</div>
+                  </div>
+              </div>
+          </div>
+          <div class="form-group" [ngClass]="{ 'has-error': loginForm.controls.password.errors }">
+            <label for="password" class="col-md-3 col-sm-5 col-xs-12">密碼</label>
+            <div class="col-md-9 col-sm-7 col-xs-12">
+                <input type="password" class="form-control" formControlName="password"/>
+                <div *ngIf="loginForm.controls.password.invalid && loginForm.controls.password.dirty" class="help-block">
+                        <div *ngIf="loginForm.controls.password.errors.required">密碼不能為空</div>
+                </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <button class="action-button" type="submit" [disabled]="!loginForm.valid" (click)="login()">登入</button>
+            <button class="action-button" type="submit" (click)="register()">註冊</button>
+          </div>
+      </form>
+    </div>
+</div>
