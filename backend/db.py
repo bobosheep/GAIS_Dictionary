@@ -1,6 +1,5 @@
 from mongoengine import *
 from datetime import datetime
-connect('test', host='localhost', port=27017)
 
 class User(DynamicDocument):
     uid = StringField(primary_key=True)
@@ -16,6 +15,17 @@ class User(DynamicDocument):
     email = EmailField()
     avatar = StringField()
     prefer = DictField()
+
+    @queryset_manager
+    def this_month_register(doc_cls, queryset):
+        now = datetime.now()
+        print('this month',now.month)
+        day = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        day[1] = 29 if now.year % 400 == 0 or (now.year % 100 != 0  and now.year % 4 == 0) else 28
+        month_start = datetime(now.year, now.month, 1)
+        month_end = datetime(now.year, now.month, day[now.month - 1], 23, 59, 59)
+
+        return queryset.filter(Q(register_time__gte=month_start) & Q(register_time__lte=month_end))
 
 class UserLog(Document):
     log_id = StringField(primary_key=True)
@@ -50,7 +60,7 @@ class UserLog(Document):
         day = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         day[1] = 29 if now.year % 400 == 0 or (now.year % 100 != 0  and now.year % 4 == 0) else 28
         month_start = datetime(now.year, now.month, 1)
-        month_end = datetime(now.year, now.month, day[now.month], 23, 59, 59)
+        month_end = datetime(now.year, now.month, day[now.month - 1], 23, 59, 59)
 
         return queryset.filter(Q(action_time__gte=month_start) & Q(action_time__lte=month_end))
 

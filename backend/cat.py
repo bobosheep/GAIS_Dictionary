@@ -6,10 +6,30 @@ from flask import (
     jsonify, Blueprint, request, g
 )
 
-from flaskr.db import CategoryNode, CategoryLeaf, User
-from flaskr.auth import login_required, user_logging
+from backend.db import CategoryNode, CategoryLeaf, User
+from backend.auth import login_required, user_logging
 
 bp = Blueprint('cat', __name__, url_prefix='/classes')
+
+def getChildrenRecursive(cat):
+    if cat is None:
+        return 
+    cat = CategoryNode.objects(cid=cat.cid).only('cid').only('cname').only('children').first()
+    data = json.loads(cat.to_json())
+    data['children'] = []
+    for c in cat.children:
+        d = getChildrenRecursive(c)
+        data['children'].append(d)
+    return data
+
+def getParentRecursive(cat):
+    if cat is None:
+        return []
+    if cat.parent is not None:
+        data = getParentRecursive(cat.parent)
+        data += [cat.parent.cname]
+        return data
+    return []
 
 def CategoryNodetoJSON(cat):
     data = json.loads(cat.to_json())
@@ -19,6 +39,7 @@ def CategoryNodetoJSON(cat):
     data['parent'] = cat.parent.cname if cat.parent is not None else None
     data['children'] = [{ 'cname': c.cname, 'cid': c.cid} for c in cat.children] if cat.children is not None else []
     data['last_updated'] = cat.last_updated.strftime("%Y-%m-%d %H:%M") if cat.last_updated is not None else ''
+    data['ancestors'] = getParentRecursive(cat)
     
     return data
 
@@ -32,7 +53,7 @@ class CategoryAPI(MethodView):
         is_error = False
         if cid is not None :
             # return category info
-            cat = CategoryNode.objects(cid=cid).first()
+            cat = CategoryNode.objects(cid=cid)
 
             if cat is None:
                 # Category not found
@@ -43,8 +64,8 @@ class CategoryAPI(MethodView):
                 is_error = True
 
             else:
-                cat.view_cnt += 1
-                cat.save()
+                cat.update_one(inc__view_cnt=1)
+                cat = cat.first()
 
                 data = CategoryNodetoJSON(cat)
                 self.data = data
@@ -208,15 +229,16 @@ class CategoryAPI(MethodView):
 
 
             if len(parent) > 0:
-                parent_cat = CategoryNode.objects(cname=parent).first()
+                parent_cat = CategoryNode.objects(cname=parent)
                 
-                if parent_cat is None:
+                if parent_cat.first() is None:
                     self.data = None
                     self.message = f'Parent category {parent} not found!'
                     self.stat_code = 404
                 else:
                     # try:
-                    cat.parent.update(pull__children=cat)
+                    if cat.parent is not None:
+                        cat.parent.update(pull__children=cat)
                     parent_cat.update(add_to_set__children=[cat])
                     cat.update(parent=parent_cat, root_cat=parent_cat.root_cat)
                     cat.parent = parent_cat
@@ -240,6 +262,7 @@ class CategoryAPI(MethodView):
                 cat.edit_cnt += 1
                 cat.last_updated = datetime.now()
                 cat.update(add_to_set__editors=[editor])
+                cat = cat.first()
 
                 data = CategoryNodetoJSON(cat)
 
@@ -326,19 +349,20 @@ class CategorySeedsAPI(MethodView):
             self.stat_code = 400
         
         else:
-            cat = CategoryLeaf.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt').first()
-            if cat is None:
+            cat = CategoryLeaf.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt')
+            if cat.first() is None:
                 is_error = True
                 self.data = None
                 self.message = 'Category not found!'
                 self.stat_code = 404
             else:
                 seeds = seeds.split(',')
-                cat.update(add_to_set__seeds=seeds)
-                cat.update(pull_all__remove_terms=seeds)
-                cat.update(inc__edit_cnt=1)
-                cat.update(set__last_updated=datetime.now())
-                cat.update(add_to_set__editors=[editor])
+                cat.update_one(add_to_set__seeds=seeds)
+                cat.update_one(pull_all__remove_terms=seeds)
+                cat.update_one(inc__edit_cnt=1)
+                cat.update_one(set__last_updated=datetime.now())
+                cat.update_one(add_to_set__editors=[editor])
+                cat = cat.first()
                 self.data = {
                     'cid' : cat.cid,
                     'cname' : cat.cname,
@@ -355,7 +379,7 @@ class CategorySeedsAPI(MethodView):
         # delete a single seed
         editor = g.user
         self.stat_code = 200
-        seeds = request.form['seeds']
+        seeds = request.args['seeds']
         
 
         if len(seeds) < 1:
@@ -364,19 +388,19 @@ class CategorySeedsAPI(MethodView):
             self.stat_code = 400
         
         else:
-            cat = CategoryLeaf.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt').first()
-            if cat is None:
+            cat = CategoryLeaf.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt')
+            if cat.first() is None:
                 self.data = None
                 self.message = 'Category not found!'
                 self.stat_code = 404
             else:
-                # try:
                 seeds = seeds.split(',')
-                cat.update(pull_all__seeds=seeds)
-                cat.update(add_to_set__remove_terms=seeds)
-                cat.update(inc__edit_cnt=1)
-                cat.update(set__last_updated=datetime.now())
-                cat.update(add_to_set__editors=[editor])
+                cat.update_one(pull_all__seeds=seeds)
+                cat.update_one(add_to_set__remove_terms=seeds)
+                cat.update_one(inc__edit_cnt=1)
+                cat.update_one(set__last_updated=datetime.now())
+                cat.update_one(add_to_set__editors=[editor])
+                cat = cat.first()
                 self.data = {
                     'cid' : cat.cid,
                     'cname' : cat.cname,
@@ -456,19 +480,21 @@ class CategoryTermsAPI(MethodView):
             self.stat_code = 400
         
         else:
-            cat = CategoryNode.objects(cid=cid).only('terms').only('cname').only('cid').only('edit_cnt').first()
-            if cat is None:
+            cat = CategoryNode.objects(cid=cid).only('terms').only('cname').only('cid').only('edit_cnt')
+            if cat.first() is None:
                 is_error = True
                 self.data = None
                 self.message = 'Category not found!'
                 self.stat_code = 404
             else:
                 terms = terms.split(',')
-                cat.update(add_to_set__terms=terms)
-                cat.update(pull_all__remove_terms=terms)
-                cat.update(inc__edit_cnt=1)
-                cat.update(set__last_updated=datetime.now())
-                cat.update(add_to_set__editors=[editor])
+                cat.update_one(add_to_set__terms=terms)
+                cat.update_one(pull_all__remove_terms=terms)
+                cat.update_one(inc__edit_cnt=1)
+                cat.update_one(set__last_updated=datetime.now())
+                cat.update_one(add_to_set__editors=[editor], full_result=True)
+                cat = cat.first()
+                print(cat.terms)
                 self.data = {
                     'cid' : cat.cid,
                     'cname' : cat.cname,
@@ -485,7 +511,7 @@ class CategoryTermsAPI(MethodView):
         # delete a single term
         editor = g.user
         self.stat_code = 200
-        terms = request.form['terms']
+        terms = request.args['terms']
         
 
         if len(terms) < 1:
@@ -494,8 +520,8 @@ class CategoryTermsAPI(MethodView):
             self.stat_code = 400
         
         else:
-            cat = CategoryLeaf.objects(cid=cid).only('terms').only('cname').only('cid').first()
-            if cat is None:
+            cat = CategoryLeaf.objects(cid=cid).only('terms').only('cname').only('cid')
+            if cat.first() is None:
                 self.data = None
                 self.message = 'Category not found!'
                 self.stat_code = 404
@@ -507,6 +533,7 @@ class CategoryTermsAPI(MethodView):
                     cat.update(inc__edit_cnt=1)
                     cat.update(set__last_updated=datetime.now())
                     cat.update(add_to_set__editors=[editor])
+                    cat = cat.first()
                     self.data = {
                         'cid' : cat.cid,
                         'cname' : cat.cname,
@@ -540,19 +567,19 @@ bp.add_url_rule('/<string:cid>/terms', view_func=category_terms_view, methods=['
 
 
 
-
 @bp.route('/list', methods=['GET'])
 def getCategoryList():
-    cats = CategoryNode.objects(is_root=True).only('cid').only('cname')
+    cats = CategoryNode.objects(is_root=True).only('cid').only('cname').only('children')
 
     datas = []
     ### TODO: change to recursive
     for cat in cats:
-        child_cats = CategoryNode.objects(parent__exists=True, parent=cat).only('cid').only('cname')
-        data = json.loads(cat.to_json())
-        data['children'] = []
-        for c in child_cats:
-            data['children'].append(json.loads(c.to_json()))
+        # child_cats = CategoryNode.objects(parent__exists=True, parent=cat).only('cid').only('cname')
+        # data = json.loads(cat.to_json())
+        # data['children'] = []
+        # for c in child_cats:
+        #     data['children'].append(json.loads(c.to_json()))
+        data = getChildrenRecursive(cat)
         datas.append(data)
         
     
@@ -561,6 +588,8 @@ def getCategoryList():
             'message' : 'Get category list successfully!'
         }), 200
         
+
+
 @bp.route('/stat', methods=['GET'])
 @user_logging
 def getCategoryStat():

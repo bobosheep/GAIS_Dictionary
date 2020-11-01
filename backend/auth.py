@@ -64,48 +64,55 @@ def user_logging(view):
                 if len(args) > 2:
                     part = args[2] 
                     cat = CategoryNode.objects(cid=part).first()
-                    action_part = cat
                     if part == '':
                         action_part_str = '全部類別'
                     elif cat is not None:
-                        action_part = cat
                         action_part_str = cat.cname +' 類別'
                     else:
+                        action_part = None
                         action_part_str = '未定義類別'
-                    if request.method == 'POST':
-                        action_part = cat
-                        action_part_str = request.form['cname']
+
+
+                        if request.method == 'POST':
+                            # add new category
+                            action_part_str = request.form['cname']
                     
             elif request.endpoint == 'cat.category_seeds_api':
                 args = action_part_str.split('/')
                 if len(args) > 2:
                     part = args[2] 
                     cat = CategoryNode.objects(cid=part).first()
+                    action_part = cat
                     
                     if part == 'seeds':
                         action_part_str = '全部類別的種子'
                     elif cat is not None:
-                        action_part = cat
                         action_part_str = cat.cname +' 類別的種子'
+                        if request.method == 'POST':
+                            action_part_str = cat.cname +'的種子 ' + request.form['seeds']
+                        elif request.method == 'DELETE':
+                            action_part_str = cat.cname +'的種子 ' + request.args['seeds']
                     else:
                         action_part_str = '未定義類別'
-                    if request.method == 'POST' or request.method == 'DELETE':
-                        action_part = cat
-                        action_part_str = cat.cname +'的種子 ' + request.form['seeds']
-                    
+
             elif request.endpoint == 'cat.category_terms_api':
                 args = action_part_str.split('/')
                 if len(args) > 2:
                     part = args[2] 
                     cat = CategoryNode.objects(cid=part).first()
+                    action_part = cat
+
                     if part == 'seeds':
                         action_part_str = '全部類別的詞'
                     elif cat is not None:
                         action_part_str = cat.cname +' 類別的詞'
+                        if request.method == 'POST':
+                            action_part_str = cat.cname +'的詞 ' + request.form['terms']
+                        elif request.method == 'DELETE':
+                            action_part_str = cat.cname +'的詞 ' + request.args['terms']
                     else:
                         action_part_str = '未定義類別'
-                    if request.method == 'POST' or request.method == 'DELETE':
-                        action_part_str = cat.cname +'的詞 ' + request.form['terms']
+
             elif request.endpoint == 'cat.getCategoryStat':
                 action_part_str = '目前類別狀態'
         else:
@@ -185,7 +192,7 @@ def login():
 
         if error is None:
             session['user_id'] = user.uid
-            user.last_login = datetime.now()
+            user.update(last_login=datetime.now())
             g.user = user
             return jsonify({
                 'data' : {
@@ -231,8 +238,6 @@ def admin_only(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None or g.user.level > 0:
-            print(g.user.uname)
-            print(g.user.level)
             return  jsonify({
                         'data' : None,
                         'message': 'Auth error'
