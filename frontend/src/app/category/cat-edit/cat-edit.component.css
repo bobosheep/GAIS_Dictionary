@@ -1,0 +1,45 @@
+.wrapper {
+    width: 95%;
+    margin: 0 auto;
+    margin-top: 0.5em;
+    min-height: 60vh;
+}
+
+.content {
+    display: flex;
+}
+
+.action-button-wrapper {
+    margin-bottom: 2.5em;
+}
+.action-button {
+    font-size: 16px;
+    font-weight: 500;
+    margin-right: 8px;
+}
+.seeds, .terms, .candidates {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 2em;
+    vertical-align: center;
+}
+h3 {
+    display: inline;
+    width: max-content;
+    margin-right: 0.5em;
+}
+.action-icon {
+    font-size: 14px;
+    margin-right: 4px;
+}
+.tooltip {
+    margin: 0 6px;
+}
+.tooltip:hover {
+    color: #bf76cf;
+    cursor: pointer;
+}
+
+.params-field {
+    margin-bottom: 1.5em;
+}

@@ -1,0 +1,140 @@
+
+<section class="wrapper">
+    <nz-page-header [nzTitle]="pageTitle" [nzSubtitle]="'編輯頁面'" [nzBackIcon]="'arrow-left'">
+        <nz-breadcrumb nz-page-header-breadcrumb>
+            <nz-breadcrumb-item *ngIf="catDetail.is_root ;else path">
+               {{catDetail.cname}} 
+            </nz-breadcrumb-item>
+            <ng-template #path>
+                <nz-breadcrumb-item *ngFor="let ancestor of catDetail.ancestors">
+                    {{ancestor}}
+                </nz-breadcrumb-item>
+                <nz-breadcrumb-item >
+                   {{catDetail.cname}} 
+                </nz-breadcrumb-item>
+            </ng-template>
+        </nz-breadcrumb>
+        <nz-page-header-content>
+            <div class="content">
+                <nz-descriptions [nzBordered]="false">
+                    <nz-descriptions-item nzTitle="建立作者" >
+                        <a>{{ catDetail.creator }}</a>
+                    </nz-descriptions-item>
+                    <nz-descriptions-item nzTitle="瀏覽次數" >{{ catDetail.view_cnt}}</nz-descriptions-item>
+                    <nz-descriptions-item nzTitle="編輯次數" >{{ catDetail.edit_cnt}}</nz-descriptions-item>
+                    <nz-descriptions-item nzTitle="建立時間" >{{ catDetail.created | date}}</nz-descriptions-item>
+                    <nz-descriptions-item nzTitle="最近更新">{{ catDetail.last_updated | date }}</nz-descriptions-item>
+                    <nz-descriptions-item nzTitle="編輯者" [nzSpan]="2">
+                        <span *ngFor="let user of catDetail.editors; index as i">
+                            <a>{{user}}</a>
+                            <span *ngIf="i !== catDetail.editors.length - 1">, </span>
+                        </span>
+                    </nz-descriptions-item>
+                </nz-descriptions>
+            </div>
+        </nz-page-header-content>
+        <nz-page-header-extra *ngIf="catDetail.children.length > 0">
+            <span>子類別內容各自獨立 </span>
+            <nz-switch
+                [nzControl]="true"
+                [ngModel]="child_mutex"
+                [nzCheckedChildren]="checkedTemplate"
+                [nzUnCheckedChildren]="unCheckedTemplate"
+                [nzLoading]="loading"
+                (click)="changeMutex()"
+            ></nz-switch>
+            <ng-template #checkedTemplate><i style="font-size: 14px;" nz-icon nzType="check" nzTheme="outline"></i></ng-template>
+            <ng-template #unCheckedTemplate><i style="font-size: 14px;" nz-icon nzType="close" nzTheme="outline"></i></ng-template>
+        </nz-page-header-extra>
+    </nz-page-header>
+
+    <ng-template #pageTitle>
+        <h1>{{ catDetail.cname }}</h1>
+    </ng-template>
+
+
+
+    
+    <div *ngIf="catDetail.seeds && catDetail.seeds.length> 0">
+        <div class="action-button-wrapper">
+            <button nz-button zType="primary" class="action-button" (click)="openSeedModal('編輯種子', seedModal)">種子內容</button>
+            <button nz-button zType="primary" class="action-button" (click)="openExtensionModal('擴展程式設定')">類別詞擴展</button>
+            <button nz-button zType="primary" class="action-button" (click)="openTermExtensionParamModal('設定參數', termExtensionParamModal)">單詞擴展參數</button>
+        </div>
+        <div class="terms">
+            <h3>類別詞</h3> 
+            <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'" (click)="openAddTermModal('加入類別詞', addTermModal)"><i nz-icon nzType="plus" nzTheme="outline"></i></button>
+            
+        </div>
+        <div>
+            <span *ngFor="let term of catDetail.terms">
+                <app-term [term]="term" [toolList]="tooltips" [closeable]="true" (closeEvent)="deleteTerm($event)"></app-term>
+                <ng-template #tooltips>
+                    <span class="tooltip"> <i nz-icon nzType="experiment" nzTheme="outline"></i> 擴展 </span>
+                    <span class="tooltip" (click)="addSeeds(term)"> <i nz-icon nzType="select" nzTheme="outline"></i> 加入種子 </span>
+                </ng-template>
+            </span>
+        </div>
+        <nz-divider></nz-divider>
+        <div class="candidates">
+            <h3>候選詞</h3> 
+            <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'"><i  nz-icon nzType="export" nzTheme="outline"></i></button>
+            <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'"><i  nz-icon nzType="delete" nzTheme="fill"></i></button>
+            
+            
+        </div>
+        <div>
+        </div>
+    </div>
+
+</section>
+
+
+
+<ng-template #seedModal>
+    <span *ngFor="let seed of catDetail.seeds">
+        <app-term [term]="seed" [toolList]="tooltips" [closeable]="true" (closeEvent)="deleteSeed($event)"></app-term>
+    </span>
+</ng-template>
+
+<ng-template #addTermModal>
+    <span>欲加入新詞: </span>
+    <span *ngFor="let term of addTermsList">
+        <app-term [term]="term"  [closeable]="true" (closeEvent)="deleteAddTerm($event)"></app-term>
+    </span>    
+    <input nz-input [(ngModel)]="addTerms" placeholder="輸入一個或多個欲加入的類別詞(以逗號分隔)" (keyup.enter)="addToTermList()">
+</ng-template>
+
+
+<ng-template #termExtensionParamModal>
+    <form >
+        <fieldset class="params-field">
+            <label for="n_result">擴展數量</label>
+            <input [(value)]="extension_param.n_results" name="n_result">
+        </fieldset>
+        <fieldset class="params-field">
+            <label for="model">使用模型</label>
+            <select  name="model">
+                <option [value]="model" *ngFor="let model of extension_param.models">{{ model}}</option>
+            </select>
+        </fieldset>
+        <fieldset class="params-field">
+            <label style="display: inline;">過濾已刪除過的字詞: </label>
+            <nz-switch
+                name="filter_removed"
+                [(ngModel)]="extension_param.filter_removed"
+                [nzCheckedChildren]="checkedTemplate"
+                [nzUnCheckedChildren]="unCheckedTemplate"
+            ></nz-switch>
+        </fieldset>
+        <fieldset class="params-field">
+            <label style="display: inline;">過濾已為類別詞的字詞: </label>
+            <nz-switch
+                name="filter_exist"
+                [(ngModel)]="extension_param.filter_exist"
+                [nzCheckedChildren]="checkedTemplate"
+                [nzUnCheckedChildren]="unCheckedTemplate"
+            ></nz-switch>
+        </fieldset>
+    </form>
+</ng-template>

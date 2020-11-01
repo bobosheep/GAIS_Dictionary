@@ -1,0 +1,47 @@
+
+<nav class="menu float-left">
+    <div class="title-wrapper" routerLink="/category" routerLinkActive="active">
+        <h3>詞分類</h3>
+        <h3>Categories</h3>
+    </div>
+    <ul nz-menu [nzMode]="'vertical'" style="width: 100%;" *ngIf="categories" >
+        <li
+            nz-submenu
+            *ngFor="let cat of categories; index as i"
+            [nzTitle]="catName"
+        >
+            <ng-template #catName>
+                <a routerLink="/category/{{cat.cname}}" routerLinkActive="active" [queryParams]="{cid: cat._id}" >
+                    {{ cat.cname }} ({{cat.children.length}})
+                </a>
+            </ng-template>
+            <ul>
+                <ng-template #recursiveList let-list="list">
+                    <ng-template ngFor let-child [ngForOf]="list">
+                        <li nz-menu-item *ngIf="child.children.length ==  0 else catMenuGroup">
+                            <ng-container *ngTemplateOutlet="subCatName"></ng-container>
+                        </li>
+                        <ng-template #catMenuGroup > 
+                            <li nz-submenu [nzOpen]="false" [nzTitle]="subCatName">
+                                <ul>
+                                    <ng-container *ngTemplateOutlet="recursiveList; context:{ list: child.children}"></ng-container>
+                                </ul>
+                            </li>
+                        </ng-template>
+                        <ng-template #subCatName>
+                            <a routerLink="/category/{{cat.cname}}/{{child.cname}}" routerLinkActive="active" [queryParams]="{cid: child._id}" >
+                                {{child.cname}}
+                            </a>
+                        </ng-template>
+                    </ng-template>
+                </ng-template>
+                <ng-container *ngTemplateOutlet="recursiveList; context:{ list: cat.children}"></ng-container>
+                
+            </ul>
+        </li>
+        
+    </ul>
+</nav>
+<section class="content">
+    <router-outlet></router-outlet>
+</section>

@@ -1,0 +1,69 @@
+
+<section class="wrapper">
+    <nz-page-header [nzTitle]="pageTitle">
+        <nz-breadcrumb nz-page-header-breadcrumb>
+            <nz-breadcrumb-item *ngIf="catDetail.is_root ; else path">
+               {{catDetail.cname}} 
+            </nz-breadcrumb-item>
+            <ng-template #path>
+                <nz-breadcrumb-item *ngFor="let ancestor of catDetail.ancestors">
+                    {{ancestor}}
+                </nz-breadcrumb-item>
+                <nz-breadcrumb-item >
+                   {{catDetail.cname}} 
+                </nz-breadcrumb-item>
+            </ng-template>
+        </nz-breadcrumb>
+        
+
+        <nz-page-header-content>
+            <div class="content">
+                <nz-descriptions [nzBordered]="false">
+                    <nz-descriptions-item nzTitle="瀏覽次數" >{{ catDetail.view_cnt}}</nz-descriptions-item>
+                    <nz-descriptions-item nzTitle="編輯次數" >{{ catDetail.edit_cnt}}</nz-descriptions-item>
+                    <nz-descriptions-item nzTitle="最近更新">{{ catDetail.last_updated | date }}</nz-descriptions-item>
+                    <nz-descriptions-item nzTitle="編輯人員" [nzSpan]="2">
+                        <span *ngFor="let user of catDetail.editors; index as i">
+                            <a>{{user}}</a>
+                            <span *ngIf="i !== catDetail.editors.length - 1">, </span>
+                        </span>
+                    </nz-descriptions-item>
+                </nz-descriptions>
+            </div>
+        </nz-page-header-content>
+
+        <nz-page-header-extra>
+            <button nz-button nzType="primary" [routerLink]="routeParams" routerLinkActive="active" [queryParams]="{ cid: catDetail._id}">edit</button>
+        </nz-page-header-extra>
+    </nz-page-header>
+
+    <ng-template #pageTitle>
+        <h1>{{ catDetail.cname }}</h1>
+    </ng-template>
+
+    
+    <div *ngIf="catDetail.seeds && catDetail.seeds.length> 0">
+        <div class="action-button-wrapper">
+            <button nz-button zType="primary" class="action-button" (click)="openModal('seeds', '種子', seedModal)">種子內容</button>
+        </div>
+        <div class="terms">
+            <h3>類別詞</h3> 
+        </div>
+        <div>
+            <span *ngFor="let term of catDetail.terms">
+                <app-term [term]="term"></app-term>
+            </span>
+        </div>
+    </div>
+
+
+    
+    <ng-template #seedModal>
+        <span *ngFor="let seed of catDetail.seeds">
+            <app-term [term]="seed" [toolList]=""></app-term>
+        </span>
+        <div *nzModalFooter>
+            <button nz-button nzType="default" (click)="handleCancel()"> 關閉 </button>
+        </div>
+    </ng-template>
+</section>
