@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { User } from './interfaces/user';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +8,17 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'frontend';
+  title = 'GaisDictionary';
+  user : User;
+  constructor(private auth: AuthService) {
+    this.auth.currentUser.subscribe(x => {
+      console.log(x)
+      this.user = x
+    })
+  }
+
+
+  logout() {
+    this.auth.logout();
+  }
 }
