@@ -2,11 +2,12 @@ import json
 import uuid
 from datetime import datetime
 from flask.views import MethodView
+from mongoengine import  Q
 from flask import (
     jsonify, Blueprint, request, g
 )
 
-from backend.db import CategoryNode, CategoryLeaf, User, UserLog
+from backend.db import CategoryNode, User, UserLog
 from backend.auth import login_required, user_logging, admin_only
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -19,14 +20,28 @@ def userToJSON(user):
 
     return data
 
+def userLogToJSON(userLog):
+    data = json.loads(userLog.to_json())
+    data['user'] = userLog.user.uname if userLog.user is not None else 'Guest'
+    data['action_time'] = userLog.action_time.strftime("%Y-%m-%d %H:%M")
+    part = userLog.action_part
+    if part is not None and part.cname is not None:
+       data['action_part'] = part.cname
+    
+
+    return data
+
+
 def getUserStatistic():
     total_users = User.objects.count()
     activated_users = User.objects(activated=True).count()
     new_users = User.this_month_register().count()
     editor_users = User.objects(level=1).count()
     admins = User.objects(level=0).count()
-    week_edit = UserLog.this_week_actions().filter(__raw__={'action_part._ref.$collection':'category'}).count()
-    month_edit = UserLog.this_week_actions().filter(__raw__={'action_part._ref.$collection':'category'}).count()
+    # week_edit = UserLog.this_week_actions().filter(__raw__={'action_part._ref.$collection':'category'}).count()
+    # month_edit = UserLog.this_week_actions().filter(__raw__={'action_part._ref.$collection':'category'}).count()
+    week_edit = UserLog.this_week_actions().filter(Q(action='新增') | Q(action='更新') | Q(action='刪除')).count()
+    month_edit = UserLog.this_month_actions().filter(Q(action='新增') | Q(action='更新') | Q(action='刪除')).count()
     # week_edit = UserLog.this_week_actions().count()
     # month_edit = UserLog.this_week_actions().count()
 
@@ -80,11 +95,15 @@ class AdminUsersAPI(MethodView) :
         else:
             self.stat_code = 200
             users = User.objects.exclude('password').exclude('prefer')
-            actions = UserLog.objects[:20]
+            action_from = 0
+            action_size = 50
+            actions = UserLog.objects()
+            action_cnt = actions.count()
             self.data = {
                 'stat' : getUserStatistic(),
                 'users' : [userToJSON(user) for user in users],
-                'actions' : [json.loads(action.to_json()) for action in actions]
+                'actions' : [userLogToJSON(action) for action in actions[action_from : action_from + action_size]],
+                'total_actions': action_cnt
             }
             self.message = 'Get users dashboard successfully!'
             return jsonify({

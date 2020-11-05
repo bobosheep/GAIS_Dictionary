@@ -21,3 +21,8 @@ export interface AdminUsersAPIDResponse {
     data : AdminUsers;
     message : string | undefined;
 }
+
+export interface ExtednAPIResponse {
+    datas?: Array<string> | Array<any>;
+    message : string | undefined;
+}

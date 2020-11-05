@@ -6,6 +6,9 @@ import { ExtensionParams } from '../interfaces/extension';
 @Component({
     selector: 'app-extension-form',
     template: `
+    
+    <ng-template #checkedTemplate><i style="font-size: 14px;" nz-icon nzType="check" nzTheme="outline"></i></ng-template>
+    <ng-template #unCheckedTemplate><i style="font-size: 14px;" nz-icon nzType="close" nzTheme="outline"></i></ng-template>
     <div class="wrapper">
         <h1 class="title">{{ title }}</h1>
         <div class="content">
@@ -17,6 +20,12 @@ import { ExtensionParams } from '../interfaces/extension';
                     </select>
                 </fieldset>
 
+                <fieldset class="params-field">
+                    <label for="model">使用模型</label>
+                    <select  formControlName="model">
+                        <option [value]="m" *ngFor="let m of models">{{ m }}</option>
+                    </select>
+                </fieldset>
                 <fieldset class="params-field">            
                     <label for="iteration">迭代次數 (Iteration)</label>
                     <input type="number" placeholder="1-5" formControlName="iteration">
@@ -58,19 +67,19 @@ import { ExtensionParams } from '../interfaces/extension';
 
                 <fieldset class="params-field">            
                     <label for="n_result">相關詞結果數量 (Related Result)</label>
-                    <input type="number" step="5" placeholder="Default 10" formControlName="n_result">
-                    <div *ngIf="paramForm.controls.n_result.invalid && 
-                                (paramForm.controls.n_result.dirty || paramForm.controls.n_result.touched)" 
+                    <input type="number" step="5" placeholder="Default 10" formControlName="n_results">
+                    <div *ngIf="paramForm.controls.n_results.invalid && 
+                                (paramForm.controls.n_results.dirty || paramForm.controls.n_results.touched)" 
                                 class="alert alert-danger">
             
                         <div *ngIf="paramForm.controls.n_result.errors.required">
                         結果數量不能為空
                         </div>
                         <div *ngIf="paramForm.controls.n_result.errors.min">
-                        結果數量需大於等於 <b>{{limits.n_result.min}}</b>.
+                        結果數量需大於等於 <b>{{limits.n_results.min}}</b>.
                         </div>
                         <div *ngIf="paramForm.controls.n_result.errors.max">
-                        結果數量需小於等於 <b>{{limits.n_result.max}}</b>.
+                        結果數量需小於等於 <b>{{limits.n_results.max}}</b>.
                         </div>
                     </div>
             
@@ -97,6 +106,21 @@ import { ExtensionParams } from '../interfaces/extension';
             
                     </div>
                 
+                </fieldset>
+                
+                <fieldset class="params-field">
+                    <label style="display: inline;">過濾已刪除過的字詞: </label>
+                    <nz-switch formControlName="f_removed"
+                        [nzCheckedChildren]="checkedTemplate"
+                        [nzUnCheckedChildren]="unCheckedTemplate"
+                    ></nz-switch>
+                </fieldset>
+                <fieldset class="params-field">
+                    <label style="display: inline;">過濾已為類別詞的字詞: </label>
+                    <nz-switch formControlName="f_exist"
+                        [nzCheckedChildren]="checkedTemplate"
+                        [nzUnCheckedChildren]="unCheckedTemplate"
+                    ></nz-switch>
                 </fieldset>
                 <div class="action-wrapper">
                     <button class="button button-outline action-button" *ngIf="cancelButton" (click)="onCancel()">取消</button>
@@ -161,19 +185,23 @@ export class ExtensionFormComponent implements OnInit {
         'threshold': {
           'min': 0.2, 'max': 0.9
         },
-        'n_result': {
+        'n_results': {
           'min': 10, 'max': 50
         },
         'coverage': {
           'min': 0.1, 'max': 0.8
         }
-      }
+    }
+    models = ['wiki_news', 'dcard']
     paramForm = this.fb.group({
         method: ['1', Validators.required],
+        model: ['wiki_news', Validators.required],
         iteration: [1,  [Validators.required, Validators.min(this.limits['iteration']['min']), Validators.max(this.limits['iteration']['max'])]],
         threshold: [0.5, [Validators.min(this.limits['threshold']['min']), Validators.max(this.limits['threshold']['max'])]],
-        n_result: [10, [Validators.min(this.limits['n_result']['min']), Validators.max(this.limits['n_result']['max'])]],
-        coverage: [0.3, [Validators.min(this.limits['coverage']['min']), Validators.max(this.limits['coverage']['max'])]]
+        n_results: [10, [Validators.min(this.limits['n_results']['min']), Validators.max(this.limits['n_results']['max'])]],
+        coverage: [0.3, [Validators.min(this.limits['coverage']['min']), Validators.max(this.limits['coverage']['max'])]],
+        f_removed: [true, Validators.required],
+        f_exist: [true, Validators.required]
     
       })
       
@@ -187,6 +215,7 @@ export class ExtensionFormComponent implements OnInit {
         this.modal.destroy(null);
     }
     onSubmit() {
+        console.log(this.paramForm.value)
         this.onSibmitEvent.emit(this.paramForm.value);
         this.modal.destroy(this.paramForm.value);
 

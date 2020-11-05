@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { User } from '../interfaces/user'
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<User>;
   public currentUser: Observable<User>;
 
-  constructor(private http: HttpClient) { 
+  constructor(private http: HttpClient, private route: Router) { 
     this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('current_user')))
     console.log(this.currentUserSubject.value)
     this.currentUser = this.currentUserSubject.asObservable()
@@ -23,6 +24,17 @@ export class AuthService {
 
   public get user() {
     return this.currentUserSubject.value
+  }
+
+  checkCurrentUser() {
+    this.http.get(`${this.server}/auth/curuser`).subscribe((ret) => {
+      const userInfo = { ...this.user, ...ret['data']}
+      localStorage.setItem('current_user', JSON.stringify(ret['data']));
+      this.currentUserSubject.next(ret['data'])
+    }, (error) => {
+      localStorage.clear()
+      this.currentUserSubject.next(null)
+    })
   }
   
 
@@ -43,6 +55,7 @@ export class AuthService {
     localStorage.removeItem('current_user')
     this.currentUserSubject.next(null)
     this.http.post(`${this.server}/auth/logout`, p).subscribe()
+    this.route.navigateByUrl('/');
   }
 }
 
@@ -74,3 +87,5 @@ export class AuthInterceptor implements HttpInterceptor {
 export const httpInterceptorProviders = [
   { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
 ];
+
+

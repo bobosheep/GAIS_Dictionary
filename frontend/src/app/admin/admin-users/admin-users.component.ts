@@ -26,7 +26,7 @@ export class AdminUsersComponent implements OnInit {
             this.result = ret.data
             this.statistic = this.result.stat
             this.result.users.forEach(u => u.register_date)
-            console.log(this.result.users)
+            console.log(this.result)
         })
     }
 
@@ -41,38 +41,13 @@ export class AdminUsersComponent implements OnInit {
     <nz-table #userTable [nzData]="showData" >
         <thead (nzSortChange)="sort($event)" nzSingleSort>
           <tr>
-            <th
-                nzShowSort
-                nzSortKey="uname"
-            >
-                Name
-            </th>
-            <th
-                nzShowSort
-                nzSortKey="display_name"
-            >
-                Display Name
-            </th>
-            <th
-                nzShowSort
-                nzSortKey="email"
-            >
-                Email
-            </th>
+            <th nzShowSort nzSortKey="uname">Name</th>
+            <th nzShowSort nzSortKey="display_name">Display Name</th>
+            <th nzShowSort nzSortKey="email">Email</th>
             <th>Level</th>
             <th>Activated</th>
-            <th
-                nzShowSort
-                nzSortKey="last_login"
-            >
-                Last Login
-            </th>
-            <th
-                nzShowSort
-                nzSortKey="register_date"
-            >
-                Register Time
-            </th>
+            <th nzShowSort nzSortKey="last_login">Last Login</th>
+            <th nzShowSort nzSortKey="register_date">Register Time</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -82,7 +57,7 @@ export class AdminUsersComponent implements OnInit {
             <td>{{ data.uname }}</td>
             <td>{{ data.display_name }}</td>
             <td>{{ data.email }}</td>
-            <td>{{ data.level }}</td>
+            <td>{{ level[data.level] }}</td>
             <td>
                 <ng-container *ngIf="data.activated; else notActivated">
                     <i nz-icon nzType="check" nzTheme="outline" style="color: #52c41a;"></i>
@@ -105,6 +80,7 @@ export class AdminUsersComponent implements OnInit {
     styles: [``]
 })
 export class AdminUsersTableComponent implements OnInit{
+    level: string[] = ['管理員', '編輯者', '一般使用者']
     sortName: string | null = null;
     sortValue: string | null = null;
     searchActivated : string[] = [];
@@ -117,7 +93,94 @@ export class AdminUsersTableComponent implements OnInit{
     }
     ngOnInit () {
         this.showData = [...this.tableData];
-        console.log('Init', this.showData)
+    }
+
+    sort(sort: { key: string; value: string }): void {
+      this.sortName = sort.key;
+      this.sortValue = sort.value;
+      this.show();
+    }
+    filter(searchLevel, searchActivated) {
+
+    }
+    show() {
+        const data = this.tableData;
+        /** sort data **/
+        console.log('sort', this.sortName, this.sortValue)
+        if (this.sortName && this.sortValue) {
+            this.showData = [ ...data.sort((a, b) => {
+                return this.sortValue === 'ascend'
+                ? a[this.sortName!] > b[this.sortName!]
+                    ? 1
+                    : -1
+                : b[this.sortName!] > a[this.sortName!]
+                ? 1
+                : -1
+            })];
+            console.log('sorted', this.showData)
+        } else {
+          this.showData = data;
+        }
+
+    }
+}
+
+
+@Component({
+    selector: 'app-admin-actions-table',
+    template: `
+    <nz-table #actionTable [nzData]="showData" >
+        <thead (nzSortChange)="sort($event)" nzSingleSort>
+          <tr>
+            <th>User</th>
+            <th>IP</th>
+            <th>Action</th>
+            <th>Part</th>
+            <th>Stat</th>
+            <th>Level</th>
+            <th>Action time</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of actionTable.data">
+            
+            <td>{{ data.user }}</td>
+            <td>{{ data.user_ip }}</td>
+            <td>{{ data.action }}</td>
+            <td>{{ data.action_part }}</td>
+            <td>
+                <ng-container *ngIf="data.action_stat; else notActivated">
+                    <i nz-icon nzType="check" nzTheme="outline" style="color: #52c41a;"></i>
+                </ng-container>
+                <ng-template #notActivated>
+                    <i nz-icon nzType="close" nzTheme="outline" style="color: #ff6347;"></i>
+
+                </ng-template>
+            </td>
+            <td>{{ level[data.level] }}</td>
+            <td>{{ data.action_time }}</td>
+            <td>{{ data.action_description }}</td>
+          </tr>
+        </tbody>
+
+    </nz-table>`,
+    styles: [``]
+})
+export class AdminActionsTableComponent implements OnInit{
+    level: string[] = ['INFO', 'WARN', 'ERROR', 'FATAL']
+    sortName: string | null = null;
+    sortValue: string | null = null;
+    searchActivated : string[] = [];
+    searchLevel : string[] = [];
+
+    @Input() tableData: Array<Action>;
+    showData : Array<Action>;
+    constructor(){
+
+    }
+    ngOnInit () {
+        this.showData = [...this.tableData];
     }
 
     sort(sort: { key: string; value: string }): void {

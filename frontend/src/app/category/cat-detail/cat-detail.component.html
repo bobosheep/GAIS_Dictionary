@@ -57,6 +57,39 @@
     </div>
 
 
+    <div *ngIf="catDetail.children && catDetail.children.length> 0">
+        <div class="children-wrapper">
+            <div class="child-box" *ngFor="let cat_child of catDetail.children">
+                <h4 class="child-title" 
+                    routerLink="/category/{{catDetail.cname}}/{{cat_child.cname}}" 
+                    routerLinkActive="active"
+                    [queryParams]="{cid: cat_child._id}"
+                >
+                    {{ cat_child.cname }}
+                </h4>
+                    <ng-template [ngIf]="cat_child.terms && cat_child.terms.length > 0">
+                        <nz-divider nzText="類別詞彙"></nz-divider>
+                        <div class="child-content">
+                            <app-term  [term]="term" *ngFor="let term of cat_child.terms"></app-term>
+                        </div>
+                    </ng-template>
+                    <ng-template [ngIf]="cat_child.children && cat_child.children.length > 0" >
+                        <nz-divider nzText="子類別"></nz-divider>
+                        <div class="child-content">
+                            <app-term 
+                                [type]="'info'" 
+                                [term]="cat.cname" 
+                                *ngFor="let cat of cat_child.children"
+                                routerLink="/category/{{catDetail.cname}}/{{cat.cname}}"
+                                routerLinkActive="'active'"
+                                [queryParams]="{'cid': cat._id}"
+                            >
+                            </app-term>
+                        </div>
+                    </ng-template>
+            </div>
+        </div>
+    </div>
     
     <ng-template #seedModal>
         <span *ngFor="let seed of catDetail.seeds">

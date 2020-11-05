@@ -30,7 +30,7 @@ class User(DynamicDocument):
 class UserLog(Document):
     log_id = StringField(primary_key=True)
     level = IntField()          # 0: INFO, 1: WARN, 2:ERROR, 3: FATAL 
-    action = StringField()         # GET, POST, PUT, DELETE
+    action = StringField()         # 瀏覽, 新增, 更新, 刪除, 登入, 登出
     action_time = DateTimeField()
     action_date = DateField()
     action_part = GenericReferenceField()
@@ -43,7 +43,7 @@ class UserLog(Document):
     def objects(doc_cls, queryset):
         # This may actually also be done by defining a default ordering for
         # the document, but this illustrates the use of manager methods
-        return queryset.order_by('-action_date')
+        return queryset.order_by('-action_time')
 
     @queryset_manager
     def this_week_actions(doc_cls, queryset):
@@ -106,8 +106,6 @@ class CategoryNode(Category):
     has_children = BooleanField()
     children = ListField(ReferenceField(Category))
     meta = {'allow_inheritance': True}
-
-class CategoryLeaf(CategoryNode):
     seeds = ListField(StringField())
     terms = ListField(StringField())
     remove_terms = ListField(StringField())

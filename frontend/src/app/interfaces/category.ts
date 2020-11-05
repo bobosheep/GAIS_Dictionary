@@ -3,6 +3,7 @@ export interface Category {
     cname: string;
     parent?: string;
     children?: Category[];
+    terms?: string[]; 
 }
 
 export interface CategoryDetail {

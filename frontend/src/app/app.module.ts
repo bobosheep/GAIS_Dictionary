@@ -19,6 +19,7 @@ import { NotFoundComponent } from './page-not-found/not-found.component';
 import { FormsModule } from '@angular/forms';
 import { registerLocaleData } from '@angular/common';
 import en from '@angular/common/locales/en';
+import { CanActivateAdmin } from './services/admin.service';
 
 registerLocaleData(en);
 
@@ -45,7 +46,8 @@ registerLocaleData(en);
     AuthService, 
     httpInterceptorProviders, 
     { provide: NZ_I18N, useValue: en_US },
-    { provide: NZ_ICON_DEFAULT_TWOTONE_COLOR, useValue: '#9b4dca' }
+    { provide: NZ_ICON_DEFAULT_TWOTONE_COLOR, useValue: '#9b4dca' },
+    CanActivateAdmin
   ],
   bootstrap: [AppComponent]
 })

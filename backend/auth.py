@@ -9,7 +9,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.db import User, CategoryNode, UserLog
+from backend.db import User, CategoryNode, UserLog
 
 tokens = dict()
 user_token = dict()
@@ -38,7 +38,7 @@ def user_logging(view):
         }
 
         user_ip = request.host
-        action_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+        action_time = datetime.now()
         action_part_str = request.path
         action = method[request.method]
         level = LEVEL[request.method] if response[1] / 100  < 5 else 2
@@ -67,7 +67,7 @@ def user_logging(view):
                     if part == '':
                         action_part_str = '全部類別'
                     elif cat is not None:
-                        action_part_str = cat.cname +' 類別'
+                        action_part_str = cat.cname +'類別'
                     else:
                         action_part = None
                         action_part_str = '未定義類別'
@@ -87,7 +87,7 @@ def user_logging(view):
                     if part == 'seeds':
                         action_part_str = '全部類別的種子'
                     elif cat is not None:
-                        action_part_str = cat.cname +' 類別的種子'
+                        action_part_str = cat.cname +'類別的種子'
                         if request.method == 'POST':
                             action_part_str = cat.cname +'的種子 ' + request.form['seeds']
                         elif request.method == 'DELETE':
@@ -105,7 +105,7 @@ def user_logging(view):
                     if part == 'seeds':
                         action_part_str = '全部類別的詞'
                     elif cat is not None:
-                        action_part_str = cat.cname +' 類別的詞'
+                        action_part_str = cat.cname +'類別的詞'
                         if request.method == 'POST':
                             action_part_str = cat.cname +'的詞 ' + request.form['terms']
                         elif request.method == 'DELETE':
@@ -115,11 +115,29 @@ def user_logging(view):
 
             elif request.endpoint == 'cat.getCategoryStat':
                 action_part_str = '目前類別狀態'
-        else:
+        elif  request.blueprint == 'extension':
+            if request.endpoint == 'extension.extension_api':
+                args = action_part_str.split('/')
+                action = '擴展'
+                if len(args) > 2:
+                    part = args[2] 
+                    cat = CategoryNode.objects(cid=part).first()
+                    action_part = cat
+                    
+                    if cat is not None:
+                        action_part_str = cat.cname +'類別的詞'
+                    else:
+                        action_part_str = '未定義類別'
+                else :
+                    action_part_str = '所有類別'
+            elif request.endpoint == 'extension.getTermSim':
+                action = '獲取'
+                term = request.args['term']
+                action_part_str = f'{term}的相關詞'
             pass
 
-        print(f'[{print_level}] User {username} {action} {action_part_str} {request_failed} @ {action_time} from {user_ip}')
-        description = f'使用者\"{username}\"{action}{action_part_str}{request_failed}@{action_time}從 ip:{user_ip}。'
+        print(f'[{print_level}] User {username} {action} {action_part_str} {request_failed} @ {action_time.strftime("%Y-%m-%d %H:%M")} from {user_ip}')
+        description = f'\"{username}\"{action}<{action_part_str}>{request_failed}@{action_time}從 ip:{user_ip}。'
         userlog = UserLog(  log_id=str(uuid.uuid4())[:8], level=level, action=action, 
                             action_time=action_time, 
                             action_part=action_part, 
@@ -209,6 +227,33 @@ def login():
                 'data' : None, \
                 'message': error
                 }), error_code
+
+@bp.route('/curuser', methods=['GET'])
+def current_user():
+    user_id = session.get('user_id')
+
+    if user_id is None:
+        return jsonify({
+            'data': None,
+            'message': 'Cookie invalidation!'
+        }), 401
+    else:
+        user = User.objects(uid=user_id).only('level').only('display_name').first()
+        if user is None:
+            return jsonify({
+                'data': None,
+                'message': 'User not found!'
+            }), 404
+        else:
+            return jsonify({
+                'data':  {
+                    'display_name': user.display_name,\
+                    'level': user.level,
+                },
+                'message': f'Hello {user.display_name}'
+            }), 200
+
+
 
 
 @bp.before_app_request

@@ -6,7 +6,7 @@ from flask import (
     jsonify, Blueprint, request, g
 )
 
-from backend.db import CategoryNode, CategoryLeaf, User
+from backend.db import CategoryNode, User
 from backend.auth import login_required, user_logging
 
 bp = Blueprint('cat', __name__, url_prefix='/classes')
@@ -37,7 +37,18 @@ def CategoryNodetoJSON(cat):
     data['creator'] = cat.creator.uname if cat.creator is not None else None
     data['editors'] = [ u.uname for u in cat.editors ]
     data['parent'] = cat.parent.cname if cat.parent is not None else None
-    data['children'] = [{ 'cname': c.cname, 'cid': c.cid} for c in cat.children] if cat.children is not None else []
+    children = []
+    if cat.children is not None:
+        for c in cat.children:
+            child = {
+                '_id': c.cid,
+                'cname': c.cname,
+                'terms': c.terms if 'terms' in c else None,
+                'children': [{ 'cname': cc.cname, '_id': cc.cid} for cc in c.children] if 'children' in c else None
+            }
+            children.append(child)
+    data['children'] = children
+    # data['children'] = [{ 'cname': c.cname, '_id': c.cid} for c in cat.children] if cat.children is not None else []
     data['last_updated'] = cat.last_updated.strftime("%Y-%m-%d %H:%M") if cat.last_updated is not None else ''
     data['ancestors'] = getParentRecursive(cat)
     
@@ -53,7 +64,7 @@ class CategoryAPI(MethodView):
         is_error = False
         if cid is not None :
             # return category info
-            cat = CategoryNode.objects(cid=cid)
+            cat = CategoryNode.objects(cid=cid).first()
 
             if cat is None:
                 # Category not found
@@ -64,14 +75,13 @@ class CategoryAPI(MethodView):
                 is_error = True
 
             else:
-                cat.update_one(inc__view_cnt=1)
-                cat = cat.first()
+                cat.update(inc__view_cnt=1)
+                cat = cat.reload()
 
                 data = CategoryNodetoJSON(cat)
                 self.data = data
                 self.message = f'Get category {cat.cname} successfully!'
 
-                ### TODO: Add user log
             return jsonify({
                 'data': self.data,  \
                 'message': self.message
@@ -145,7 +155,7 @@ class CategoryAPI(MethodView):
                         new_cat.save()
                         self.message = f'Category {cname} is created successfully!'
                         self.data = {
-                            'cid': new_cat.cid,
+                            '_id': new_cat.cid,
                             'cname' : new_cat.cname
                         }
                     else:
@@ -159,7 +169,7 @@ class CategoryAPI(MethodView):
                             self.stat_code = 404
 
                         else:
-                            new_cat = CategoryLeaf( cid=uuid.uuid4(), cname=cname,              \
+                            new_cat = CategoryNode( cid=uuid.uuid4(), cname=cname,              \
                                                     is_root=is_root, child_mutex=mutex,         \
                                                     root_cat=parent_cat.root_cat, view_cnt=0, edit_cnt=0,     \
                                                     creator=g.user, editors=[g.user],           \
@@ -171,7 +181,7 @@ class CategoryAPI(MethodView):
                             parent_cat.update(add_to_set__children=[new_cat])
                             self.message = f'Category {cname} is created successfully!'
                             self.data = {
-                                'cid': new_cat.cid,
+                                '_id': new_cat.cid,
                                 'cname' : new_cat.cname,
                                 'parent': new_cat.parent.cname
                             }
@@ -291,7 +301,7 @@ class CategorySeedsAPI(MethodView):
         self.stat_code = 200
         if cid is not None :
             # return the info of that category's seeds
-            cat = CategoryLeaf.objects(cid=cid).only('cid').only('cname').only('seeds').first()
+            cat = CategoryNode.objects(cid=cid).only('cid').only('cname').only('seeds').first()
             if cat is None:
                 self.data = None
                 self.message = 'Category not found!'
@@ -299,7 +309,7 @@ class CategorySeedsAPI(MethodView):
             else:
                 self.data = {
                     'cname': cat.cname,
-                    'cid': cat.cid,
+                    '_id': cat.cid,
                     'seeds': cat.seeds
                 }
                 self.message = f'Get category {cat.cname}\'s seeds!'    
@@ -312,9 +322,9 @@ class CategorySeedsAPI(MethodView):
         else:
             # return the info of all categories' seeds
             root_cat = request.args['rcat']
-            cats = CategoryLeaf.objects().only('cid').only('cname').only('seeds')
+            cats = CategoryNode.objects().only('cid').only('cname').only('seeds')
             if len(root_cat) > 0:
-                cats = CategoryLeaf.objects(root_cat=root_cat).only('cid').only('cname').only('seeds')
+                cats = CategoryNode.objects(root_cat=root_cat).only('cid').only('cname').only('seeds')
             if cats is None:
                 self.data = None
                 self.message = 'Category empty!'
@@ -324,7 +334,7 @@ class CategorySeedsAPI(MethodView):
                 for cat in cats:
                     data = {
                         'cname': cat.cname,
-                        'cid': cat.cid,
+                        '_id': cat.cid,
                         'seeds': cat.seeds
                     }
                     datas.append(data)
@@ -349,7 +359,7 @@ class CategorySeedsAPI(MethodView):
             self.stat_code = 400
         
         else:
-            cat = CategoryLeaf.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt')
+            cat = CategoryNode.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt')
             if cat.first() is None:
                 is_error = True
                 self.data = None
@@ -364,7 +374,7 @@ class CategorySeedsAPI(MethodView):
                 cat.update_one(add_to_set__editors=[editor])
                 cat = cat.first()
                 self.data = {
-                    'cid' : cat.cid,
+                    '_id' : cat.cid,
                     'cname' : cat.cname,
                     'seeds' : cat.seeds
                 }
@@ -388,7 +398,7 @@ class CategorySeedsAPI(MethodView):
             self.stat_code = 400
         
         else:
-            cat = CategoryLeaf.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt')
+            cat = CategoryNode.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt')
             if cat.first() is None:
                 self.data = None
                 self.message = 'Category not found!'
@@ -402,7 +412,7 @@ class CategorySeedsAPI(MethodView):
                 cat.update_one(add_to_set__editors=[editor])
                 cat = cat.first()
                 self.data = {
-                    'cid' : cat.cid,
+                    '_id' : cat.cid,
                     'cname' : cat.cname,
                     'seeds' : cat.seeds
                 }
@@ -430,7 +440,7 @@ class CategoryTermsAPI(MethodView):
         self.code = 200
         if cid is not None :
             # return the info of that category's terms
-            cat = CategoryLeaf.objects(cid=cid).only('cid').only('cname').only('terms').only('edit_cnt').first()
+            cat = CategoryNode.objects(cid=cid).only('cid').only('cname').only('terms').only('edit_cnt').first()
             if cat is None:
                 self.data = None
                 self.message = 'Category not found!'
@@ -438,14 +448,14 @@ class CategoryTermsAPI(MethodView):
             else:
                 self.data = {
                     'cname': cat.cname,
-                    'cid': cat.cid,
+                    '_id': cat.cid,
                     'terms': cat.terms
                 }
                 self.message = f'Get category {cat.cname}\'s terms!'
         else:
             # return the info of all categories' terms
             root_cat = request.args['rcat']
-            cats = CategoryLeaf.objects().only('cid').only('cname').only('terms')
+            cats = CategoryNode.objects().only('cid').only('cname').only('terms')
             if cats is None:
                 self.data = None
                 self.message = 'Category empty!'
@@ -494,7 +504,6 @@ class CategoryTermsAPI(MethodView):
                 cat.update_one(set__last_updated=datetime.now())
                 cat.update_one(add_to_set__editors=[editor], full_result=True)
                 cat = cat.first()
-                print(cat.terms)
                 self.data = {
                     'cid' : cat.cid,
                     'cname' : cat.cname,
@@ -520,7 +529,7 @@ class CategoryTermsAPI(MethodView):
             self.stat_code = 400
         
         else:
-            cat = CategoryLeaf.objects(cid=cid).only('terms').only('cname').only('cid')
+            cat = CategoryNode.objects(cid=cid).only('terms').only('cname').only('cid')
             if cat.first() is None:
                 self.data = None
                 self.message = 'Category not found!'

@@ -50,7 +50,7 @@
         <app-admin-users-table [tableData]="result.users"></app-admin-users-table>
     </ng-template>
     <ng-template [ngIf]="selectedPage == 1">
-        <!-- <app-admin-users-table [tableData]="result.users"></app-admin-users-table> -->
+        <app-admin-actions-table [tableData]="result.actions"></app-admin-actions-table>
     </ng-template>
     <ng-template [ngIf]="selectedPage == 2">
         <!-- <app-admin-users-table [tableData]="result.users"></app-admin-users-table> -->

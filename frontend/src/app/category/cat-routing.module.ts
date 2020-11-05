@@ -6,6 +6,7 @@ import { CatHomeComponent } from './cat-home/cat-home.component';
 import { CatEditComponent } from './cat-edit/cat-edit.component';
 import { CatDetailComponent } from './cat-detail/cat-detail.component';
 import { CatExtensionComponent } from './cat-extension/cat-extension.component';
+import { CanActivateEdition } from '../services/category.service';
 
 
 const catRoutes: Routes = [
@@ -21,7 +22,7 @@ const catRoutes: Routes = [
         component: CatExtensionComponent
       }, {
         path: 'edit',
-        // canActivateChild: [AuthGuard],
+        canActivate: [CanActivateEdition],
         component: CatEditComponent,
         children: [
           {
@@ -47,6 +48,7 @@ const catRoutes: Routes = [
   imports: [
     RouterModule.forChild(catRoutes)
   ],
+  providers: [CanActivateEdition],
   exports: [
     RouterModule
   ]

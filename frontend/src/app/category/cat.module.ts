@@ -21,7 +21,7 @@ import { CatHomeComponent } from './cat-home/cat-home.component';
 import { CatComponent } from './cat.component';
 import { CatEditComponent } from './cat-edit/cat-edit.component';
 import { CatExtensionComponent, ExtensionModalComponent } from './cat-extension/cat-extension.component';
-import { CategoryService } from '../services/category.service';
+import { CanActivateEdition, CategoryService } from '../services/category.service';
 import { CatDetailComponent } from './cat-detail/cat-detail.component';
 import { httpInterceptorProviders } from '../services/auth.service';
 import { TermComponent } from '../components/term.component';
@@ -59,7 +59,7 @@ import { ExtensionFormComponent } from '../components/extension-form.component';
         NzMessageModule
     ], 
     providers: [
-      CategoryService, httpInterceptorProviders
+      CategoryService, httpInterceptorProviders, CanActivateEdition
     ],
     entryComponents: [ ExtensionModalComponent ]
 })

@@ -40,3 +40,24 @@ body, p, input, button, form, div {
     font-family: 'Noto Sans TC', Roboto, "Helvetica Neue", sans-serif, sans-serif;
     font-weight: 500;
 }
+
+/* width */
+::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+/* Track */
+::-webkit-scrollbar-track {
+    background: #eee;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #333;
+}

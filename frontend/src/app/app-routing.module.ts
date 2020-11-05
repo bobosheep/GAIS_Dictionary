@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { HomeComponent } from './home/home.component';
 import { NotFoundComponent } from './page-not-found/not-found.component';
+import { CanActivateAdmin } from './services/admin.service';
 import { LoginComponent } from './user/login/login.component';
 
 
@@ -12,7 +13,8 @@ const routes: Routes = [
     loadChildren: () => import('./category/cat.module').then(m => m.CategoryModule)
   },
   { path: 'login', component: LoginComponent },
-  { path: 'admin', 
+  { path: 'admin',
+    canActivate: [CanActivateAdmin],
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
   },
   { path: '',   redirectTo: '/home', pathMatch: 'full' },
@@ -21,6 +23,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
+  providers: [CanActivateAdmin],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

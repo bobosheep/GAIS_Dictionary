@@ -1,8 +1,8 @@
 
-<section class="wrapper">
+<section class="wrapper" *ngIf="catDetail">
     <nz-page-header [nzTitle]="pageTitle" [nzSubtitle]="'編輯頁面'" [nzBackIcon]="'arrow-left'">
         <nz-breadcrumb nz-page-header-breadcrumb>
-            <nz-breadcrumb-item *ngIf="catDetail.is_root ;else path">
+            <nz-breadcrumb-item *ngIf="catDetail && catDetail.is_root ;else path">
                {{catDetail.cname}} 
             </nz-breadcrumb-item>
             <ng-template #path>
@@ -43,8 +43,6 @@
                 [nzLoading]="loading"
                 (click)="changeMutex()"
             ></nz-switch>
-            <ng-template #checkedTemplate><i style="font-size: 14px;" nz-icon nzType="check" nzTheme="outline"></i></ng-template>
-            <ng-template #unCheckedTemplate><i style="font-size: 14px;" nz-icon nzType="close" nzTheme="outline"></i></ng-template>
         </nz-page-header-extra>
     </nz-page-header>
 
@@ -62,25 +60,38 @@
             <button nz-button zType="primary" class="action-button" (click)="openTermExtensionParamModal('設定參數', termExtensionParamModal)">單詞擴展參數</button>
         </div>
         <div class="terms">
-            <h3>類別詞</h3> 
+            <h3>類別詞 ({{catDetail.terms.length}})</h3> (原 candidates) 
             <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'" (click)="openAddTermModal('加入類別詞', addTermModal)"><i nz-icon nzType="plus" nzTheme="outline"></i></button>
             
         </div>
         <div>
             <span *ngFor="let term of catDetail.terms">
-                <app-term [term]="term" [toolList]="tooltips" [closeable]="true" (closeEvent)="deleteTerm($event)"></app-term>
-                <ng-template #tooltips>
-                    <span class="tooltip"> <i nz-icon nzType="experiment" nzTheme="outline"></i> 擴展 </span>
+                <app-term [term]="term" [type]="termStyle[term] !== undefined ? termStyle[term] : 'default'" [toolList]="tooltips1" [closeable]="true" (closeEvent)="deleteTerm($event)"></app-term>
+                <ng-template #tooltips1>
+                    <span class="tooltip" (click)="extendTerm(term)"> <i nz-icon nzType="experiment" nzTheme="outline"></i> 擴展 </span>
                     <span class="tooltip" (click)="addSeeds(term)"> <i nz-icon nzType="select" nzTheme="outline"></i> 加入種子 </span>
                 </ng-template>
             </span>
         </div>
         <nz-divider></nz-divider>
-        <div class="candidates">
-            <h3>候選詞</h3> 
-            <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'"><i  nz-icon nzType="export" nzTheme="outline"></i></button>
-            <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'"><i  nz-icon nzType="delete" nzTheme="fill"></i></button>
+        <div class="terms">
+            <h3>候選詞 ({{candidates.length}}) </h3>(原 news) 
+            <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'" (click)="moveCandidates()"><i  nz-icon nzType="export" nzTheme="outline"></i></button>
+            <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'" (click)="clearCandidates()"><i  nz-icon nzType="delete" nzTheme="fill"></i></button>
             
+        </div>
+        <div>
+            <span *ngFor="let term of candidates">
+                <app-term [term]="term" [type]="termStyle[term] !== undefined ? termStyle[term] : 'default'" 
+                            [selectable]="true" [selectMode]="'bound'" [toolList]="tooltips2" 
+                            [closeable]="true" 
+                            (selectEvent)="selectCandidates($event)"
+                            (closeEvent)="deleteCandidate($event)"></app-term>
+                <ng-template #tooltips2>
+                    <span class="tooltip" (click)="extendTerm(term)"> <i nz-icon nzType="experiment" nzTheme="outline"></i> 擴展 </span>
+                    <span class="tooltip" (click)="addTerm(term)"> <i nz-icon nzType="select" nzTheme="outline"></i> 加入類別詞 </span>
+                </ng-template>
+            </span>
             
         </div>
         <div>
@@ -88,21 +99,32 @@
     </div>
 
 </section>
+<ng-template #checkedTemplate><i style="font-size: 14px;" nz-icon nzType="check" nzTheme="outline"></i></ng-template>
+<ng-template #unCheckedTemplate><i style="font-size: 14px;" nz-icon nzType="close" nzTheme="outline"></i></ng-template>
 
 
 
 <ng-template #seedModal>
     <span *ngFor="let seed of catDetail.seeds">
-        <app-term [term]="seed" [toolList]="tooltips" [closeable]="true" (closeEvent)="deleteSeed($event)"></app-term>
+        <app-term [term]="seed" [closeable]="true" (closeEvent)="deleteSeed($event)"></app-term>
     </span>
 </ng-template>
 
 <ng-template #addTermModal>
     <span>欲加入新詞: </span>
-    <span *ngFor="let term of addTermsList">
+    <span *ngFor="let term of addTermStrList">
         <app-term [term]="term"  [closeable]="true" (closeEvent)="deleteAddTerm($event)"></app-term>
     </span>    
-    <input nz-input [(ngModel)]="addTerms" placeholder="輸入一個或多個欲加入的類別詞(以逗號分隔)" (keyup.enter)="addToTermList()">
+    <input nz-input [(ngModel)]="addTermStr" placeholder="輸入一個或多個欲加入的類別詞(以逗號分隔)" (keyup.enter)="addToTermList()">
+    <div style="margin-top: 1.5em;">
+        <label style="display: inline;">同時加入種子</label>
+        <nz-switch
+            name="syncSeed"
+            [(ngModel)]="syncSeed"
+            [nzCheckedChildren]="checkedTemplate"
+            [nzUnCheckedChildren]="unCheckedTemplate"
+        ></nz-switch>
+    </div>
 </ng-template>
 
 
@@ -110,19 +132,19 @@
     <form >
         <fieldset class="params-field">
             <label for="n_result">擴展數量</label>
-            <input [(value)]="extension_param.n_results" name="n_result">
+            <input type="number" step="5" [(ngModel)]="similarWord_param.n_results" name="n_result" min="5" max="100">
         </fieldset>
         <fieldset class="params-field">
             <label for="model">使用模型</label>
-            <select  name="model">
-                <option [value]="model" *ngFor="let model of extension_param.models">{{ model}}</option>
+            <select  [(ngModel)]="similarWord_param.model"  name="model">
+                <option [value]="model" *ngFor="let model of models">{{ model}}</option>
             </select>
         </fieldset>
         <fieldset class="params-field">
             <label style="display: inline;">過濾已刪除過的字詞: </label>
             <nz-switch
                 name="filter_removed"
-                [(ngModel)]="extension_param.filter_removed"
+                [(ngModel)]="similarWord_param.f_removed"
                 [nzCheckedChildren]="checkedTemplate"
                 [nzUnCheckedChildren]="unCheckedTemplate"
             ></nz-switch>
@@ -131,7 +153,7 @@
             <label style="display: inline;">過濾已為類別詞的字詞: </label>
             <nz-switch
                 name="filter_exist"
-                [(ngModel)]="extension_param.filter_exist"
+                [(ngModel)]="similarWord_param.f_exist"
                 [nzCheckedChildren]="checkedTemplate"
                 [nzUnCheckedChildren]="unCheckedTemplate"
             ></nz-switch>

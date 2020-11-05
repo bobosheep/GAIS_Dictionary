@@ -14,7 +14,7 @@ import { AdminComponent } from './admin.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { AdminCategoriesComponent } from './admin-categories/admin-categories.component';
 import { AdminTermsComponent } from './admin-terms/admin-terms.component';
-import { AdminUsersComponent, AdminUsersTableComponent } from './admin-users/admin-users.component';
+import { AdminActionsTableComponent, AdminUsersComponent, AdminUsersTableComponent } from './admin-users/admin-users.component';
 import { AdminService } from '../services/admin.service';
 import { httpInterceptorProviders } from '../services/auth.service';
 
@@ -27,7 +27,8 @@ import { httpInterceptorProviders } from '../services/auth.service';
         AdminCategoriesComponent,
         AdminTermsComponent,
         AdminUsersComponent,
-        AdminUsersTableComponent
+        AdminUsersTableComponent,
+        AdminActionsTableComponent
     ],
     imports: [
         AdminRoutingModule,
