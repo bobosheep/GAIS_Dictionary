@@ -2,7 +2,63 @@
     width: 90%;
     margin: 0 auto;
 }
-.title > h1 {
+h1.title {
+    display: inline;
     margin-top: .5em;
+    margin-right: .2em;
     font-size: 28px;
+}
+.usage-button { 
+    height: 24px;
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 .5em;
+    padding: 0 12px;
+}
+.description {
+    margin-top: .7em;
+}
+
+.class-wrapper{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-content: flex-start;
+}
+.class-card {
+    position: relative;
+    width: 240px;
+    height: 120px;
+    margin: .75em;
+    padding: 8px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    transition: .3s;
+    overflow: hidden;
+}
+.class-card:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+}
+.class-title {
+    line-height: 40px;
+    font-size: 16px;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #eee;
+    text-align: left;
+    padding: 4px 8px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    margin: 0;
+
+}
+.class-title-info {
+    margin-left: 5px;
+    font-size: 12px;
+    float: right;
+}
+.class-cover {
+    background-image: url();
 }

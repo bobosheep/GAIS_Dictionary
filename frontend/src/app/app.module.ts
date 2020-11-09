@@ -3,6 +3,9 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { registerLocaleData } from '@angular/common';
+import en from '@angular/common/locales/en';
 
 import zh from '@angular/common/locales/zh';
 import { NZ_I18N, zh_TW, en_US } from 'ng-zorro-antd';
@@ -16,9 +19,6 @@ import { AuthService, httpInterceptorProviders } from './services/auth.service';
 import { HomeComponent } from './home/home.component';
 import { UserModule } from './user/user.module';
 import { NotFoundComponent } from './page-not-found/not-found.component';
-import { FormsModule } from '@angular/forms';
-import { registerLocaleData } from '@angular/common';
-import en from '@angular/common/locales/en';
 import { CanActivateAdmin } from './services/admin.service';
 
 registerLocaleData(en);
@@ -33,6 +33,8 @@ registerLocaleData(en);
   ],
   imports: [
     BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
     UserModule,
     AppRoutingModule,
     BrowserAnimationsModule,

@@ -5,6 +5,7 @@
     overflow: hidden;
 }
 .menu {
+    float: left;
     display: inline-block;
     width: 280px;
     margin-left: 1.5em;

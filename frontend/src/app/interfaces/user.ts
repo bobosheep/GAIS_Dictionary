@@ -1,5 +1,5 @@
 export interface User {
-    uid?: string;
+    uid: string;
     username: string;
     display_name: string;
     password?: string;
@@ -12,10 +12,10 @@ export interface UserDetail {
     username: string;
     display_name: string;
     email: string;
-    avatar: string;
-    is_activated: boolean;
-    register_date: Date;
-    last_login: Date;
+    avatar?: string;
+    is_activated?: boolean;
+    register_date?: Date;
+    last_login?: Date;
     level: number;
-    prefer: any;
+    prefer?: any;
 }

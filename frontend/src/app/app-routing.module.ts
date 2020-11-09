@@ -5,6 +5,8 @@ import { HomeComponent } from './home/home.component';
 import { NotFoundComponent } from './page-not-found/not-found.component';
 import { CanActivateAdmin } from './services/admin.service';
 import { LoginComponent } from './user/login/login.component';
+import { ProfileComponent } from './user/profile/profile.component';
+import { RegisterComponent } from './user/register/register.component';
 
 
 const routes: Routes = [
@@ -13,9 +15,15 @@ const routes: Routes = [
     loadChildren: () => import('./category/cat.module').then(m => m.CategoryModule)
   },
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'admin',
     canActivate: [CanActivateAdmin],
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+  },
+  { path: 'user', 
+    children: [
+      { path: 'profile', component: ProfileComponent }
+    ]
   },
   { path: '',   redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: NotFoundComponent }

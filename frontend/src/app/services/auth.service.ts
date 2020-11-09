@@ -4,8 +4,9 @@ import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { User } from '../interfaces/user'
+import { User, UserDetail } from '../interfaces/user'
 import { Router } from '@angular/router';
+import { UserAPIResponse } from '../interfaces/api';
 
 @Injectable({
   providedIn: 'root'
@@ -42,12 +43,19 @@ export class AuthService {
     let p = new FormData()
     p.append('username', username)
     p.append('password', password)
-    return this.http.post(`${this.server}/auth/login`, p).pipe(map((ret) => {
+    return this.http.post<UserAPIResponse>(`${this.server}/auth/login`, p).pipe(map((ret) => {
       // store user details and jwt token in local storage to keep user logged in between page refreshes
       localStorage.setItem('current_user', JSON.stringify(ret['data']));
       this.currentUserSubject.next(ret['data'])
       return ret;
     }))
+  }
+  register(registerForm: UserDetail) {
+    let p = new FormData()
+    Object.keys(registerForm).forEach((key) => {
+        p.append(key, registerForm[key])
+    })
+    return this.http.post<UserAPIResponse>(`${this.server}/auth/register`, p)
   }
 
   logout() {

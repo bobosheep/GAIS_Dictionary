@@ -1,16 +1,27 @@
-<section class="wrapper title">
-    <h1> 分類辭典 </h1>
-    <p></p>
+<section class="wrapper header">
+    <h1 class="title"> 分類辭典 </h1>
+    <button class="button-outline usage-button" [disabled]="true">下載分類詞</button>
+    <button class="button-outline usage-button" [disabled]="true">擴展方法簡介</button>
+    <p class="description"> 這邊會放分類辭典簡介! </p>
 </section>
 <section class="wrapper content">
     <div>
-        <h2> 所有大類別</h2>
-        
-    </div>
-    <div>
-        <button>下載分類詞</button>
-    </div>
-    <div>
-        <a class="button">擴展程式</a>
+        <h2> 主類別</h2>
+        <div class="class-wrapper">
+            <div class="class-card" *ngFor="let cat of cat_list" routerLink="/category/{{cat.cname}}" routerLinkActive="'active'" [queryParams]="{cid: cat._id}">
+                <div class="class-cover"></div>
+                <h3 class="class-title">
+                    {{ cat.cname }} 
+                    <span class="class-title-info"><i nz-icon nzType="eye" nzTheme="fill"></i>: {{ cat.view_cnt }}</span>
+                    <span class="class-title-info" ><i nz-icon nzType="folder" nzTheme="fill"></i>: {{ cat.children.length }}</span>
+                </h3>
+                <div class="class-content">
+    
+                </div>
+                <div class="class-footer">
+    
+                </div>
+            </div>
+        </div>
     </div>
 </section>

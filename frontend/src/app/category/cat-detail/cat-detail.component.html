@@ -47,7 +47,7 @@
             <button nz-button zType="primary" class="action-button" (click)="openModal('seeds', '種子', seedModal)">種子內容</button>
         </div>
         <div class="terms">
-            <h3>類別詞</h3> 
+            <h3>類別詞 ({{catDetail.terms.length}})</h3> 
         </div>
         <div>
             <span *ngFor="let term of catDetail.terms">
@@ -65,16 +65,16 @@
                     routerLinkActive="active"
                     [queryParams]="{cid: cat_child._id}"
                 >
-                    {{ cat_child.cname }}
+                    {{ cat_child.cname }} 
                 </h4>
                     <ng-template [ngIf]="cat_child.terms && cat_child.terms.length > 0">
-                        <nz-divider nzText="類別詞彙"></nz-divider>
+                        <nz-divider nzText="類別詞彙 ({{cat_child.terms.length}})"></nz-divider>
                         <div class="child-content">
                             <app-term  [term]="term" *ngFor="let term of cat_child.terms"></app-term>
                         </div>
                     </ng-template>
                     <ng-template [ngIf]="cat_child.children && cat_child.children.length > 0" >
-                        <nz-divider nzText="子類別"></nz-divider>
+                        <nz-divider nzText="子類別 ({{cat_child.children.length}})"></nz-divider>
                         <div class="child-content">
                             <app-term 
                                 [type]="'info'" 

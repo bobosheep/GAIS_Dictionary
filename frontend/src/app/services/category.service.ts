@@ -22,6 +22,9 @@ export class CategoryService {
     getCategoryList() {
         return this.http.get<CatAPIResponse>(`${this.server}/classes/list`)
     }
+    getCategoryStat() {
+        return this.http.get<CatAPIResponse>(`${this.server}/classes/stat`)
+    }
     getCategory(cid: string) {
         return this.http.get<CatAPIResponse>(`${this.server}/classes/${cid}`)
     }

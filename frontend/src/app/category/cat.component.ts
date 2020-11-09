@@ -17,7 +17,7 @@ export class CatComponent implements OnInit {
 
   constructor(private cs: CategoryService, private router: Router) { 
     this.cs.getCategoryList().subscribe((x: CatAPIResponse)=> {
-      this.categories = x.datas
+      this.categories = x.datas.sort((a, b) => b.children.length - a.children.length)
     })
   }
 

@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { CategoryDetail } from 'src/app/interfaces/category';
+import { CategoryService } from 'src/app/services/category.service';
 
 @Component({
   selector: 'app-cat-home',
@@ -7,9 +9,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CatHomeComponent implements OnInit {
 
-  constructor() { }
+  cat_list: Array<CategoryDetail>;
+
+  constructor(private cs : CategoryService) { }
 
   ngOnInit() {
+    this.cs.getCategoryStat().subscribe((ret) => {
+      this.cat_list = ret.datas
+      this.cat_list.sort((a, b) => b.children.length - a.children.length )
+      
+    })
   }
 
 }

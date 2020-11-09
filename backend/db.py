@@ -99,6 +99,7 @@ class Category(Document):
     edit_cnt = IntField()
     published = BooleanField()
     model = StringField()
+    image_urls = ListField(StringField())
     meta = {'allow_inheritance': True}
 
 class CategoryNode(Category):

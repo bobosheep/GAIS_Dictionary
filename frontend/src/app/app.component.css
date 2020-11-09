@@ -20,6 +20,7 @@ nz-content {
 }
 nz-footer {
   text-align: center;
+  height: 200px;
 }
 nz-header {
     border: 0;

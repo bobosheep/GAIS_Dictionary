@@ -18,9 +18,9 @@
     <ul  nz-menu style="border-bottom: 0px;" nzMode="horizontal">
       <li nz-submenu class="nav" *ngIf="user !== null"  [nzTitle]="username">
         <ul >
-          <li nz-menu-item *ngIf="user.level == 0"> <a class="button button-clear" routerLink="/admin" routerLinkActive="active">admin</a></li>
-          <li nz-menu-item> <a class="button button-clear" >profile</a></li>
-          <li nz-menu-item> <a class="button button-clear" (click)="logout()">logout</a></li>
+          <li nz-menu-item *ngIf="user.level == 0"> <button class="button button-clear" routerLink="/admin" routerLinkActive="active">admin</button></li>
+          <li nz-menu-item> <button class="button button-clear" [disabled]="true">profile</button></li>
+          <li nz-menu-item> <button class="button button-clear" (click)="logout()">logout</button></li>
         </ul>
       </li>
       <ng-template #username>

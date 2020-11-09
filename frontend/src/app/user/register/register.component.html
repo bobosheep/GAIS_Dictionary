@@ -1,0 +1,75 @@
+<div class="container">
+    <div class="register-box">
+        <h3>註冊帳號</h3>
+        <form [formGroup]="registerForm" (ngSubmit)="register()">
+            <div class="form-group" >
+                <label for="username" >帳號</label>
+                <div>
+                    <nz-input-group [nzPrefix]="userPrefixTemplate">
+                        <input nz-input type="text" class="form-control" formControlName="username" pattern="[a-zA-Z0-9]*"/>
+                    </nz-input-group>
+                    <div *ngIf="username.invalid && username.dirty" class="help-block">
+                            <div *ngIf="username.errors.required">此欄位不能為空</div>
+                            <div *ngIf="username.errors.pattern">帳號只能包含大小寫英文字母及數字</div>
+                    </div>
+                    <ng-template #userPrefixTemplate><i nz-icon nzType="user" nzTheme="outline"></i></ng-template>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="display_name" >暱稱</label>
+                <div>
+                    <nz-input-group [nzPrefix]="contactsPrefixTemplate">
+                        <input nz-input type="text" class="form-control" formControlName="display_name" />
+                    </nz-input-group>
+                    <div *ngIf="display_name.invalid && display_name.dirty" class="help-block">
+                            <div *ngIf="display_name.errors.required">此欄位不能為空</div>
+                    </div>
+                    
+                    <ng-template #contactsPrefixTemplate><i nz-icon nzType="contacts" nzTheme="outline"></i> </ng-template>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email"> 信箱</label>
+                <div>
+                    <nz-input-group [nzPrefix]="emailPrefixTemplate">
+                        <input nz-input type="email" class="form-control" formControlName="email" email="true"/>
+                    </nz-input-group>
+                    <div *ngIf="email.invalid && email.dirty" class="help-block">
+                            <div *ngIf="email.errors.required">此欄位不能為空</div>
+                            <div *ngIf="email.errors.email">信箱格式錯誤</div>
+                    </div>
+                    <ng-template #emailPrefixTemplate> <i nz-icon nzType="mail" nzTheme="fill"></i></ng-template>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password"> 密碼</label>
+                <div >
+                    <nz-input-group [nzPrefix]="passwordPrefixTemplate">
+                        <input nz-input type="password" class="form-control" formControlName="password" pattern="[a-zA-Z0-9@.,;]*"/>
+                    </nz-input-group>
+                    <div *ngIf="password.invalid && password.dirty" class="help-block">
+                            <div *ngIf="password.errors.required">此欄位不能為空</div>
+                            <div *ngIf="password.errors.pattern">密碼只能包含符號@.,;大小寫英文字母及數字</div>
+                    </div>
+                    <ng-template #passwordPrefixTemplate><i nz-icon nzType="lock" nzTheme="fill"></i></ng-template>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="passwordValid">確認密碼</label>
+                <div >
+                    <nz-input-group [nzPrefix]="passwordPrefixTemplate">
+                        <input nz-input type="password" class="form-control" formControlName="passwordValid" pattern="[a-zA-Z0-9@.,;]*"/>
+                    </nz-input-group>
+                    <div *ngIf="passwordValid.dirty && 
+                                passwordValid.value !== password.value" class="help-block">
+                        與密碼不相同
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="action-button" type="button" [disabled]="!registerForm.valid" (click)="register()">註冊</button>
+            </div>
+        </form>
+    </div>
+    已經有帳號?<a class="button button-clear" routerLink="/login" routerLinkActive="'active'" >立即登入</a>
+</div>

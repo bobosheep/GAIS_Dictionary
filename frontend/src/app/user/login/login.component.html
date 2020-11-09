@@ -1,30 +1,36 @@
 <div class="container">
     <div class="login-box">
-        <h3>登入</h3>
-        <p *ngIf="message" class="text-center error">{{message}}</p>
-      <form [formGroup]="loginForm" >
-          <div class="form-group" [ngClass]="{ 'has-error': loginForm.controls.password.errors }">
-              <label for="userid" class="col-md-3 col-sm-5 col-xs-12">使用者帳號</label>
-              <div class="col-md-9 col-sm-7 col-xs-12">
-                  <input type="text" class="form-control" formControlName="userid" />
+      <h3>登入</h3>
+      <form [formGroup]="loginForm" (ngSubmit)="login()" >
+          <div class="form-group">
+              <label for="userid" >帳號或信箱</label>
+              <div>
+                  <nz-input-group [nzPrefix]="userPrefixTemplate">
+                    <input nz-input type="text" class="form-control" formControlName="userid" />
+                  </nz-input-group>
                   <div *ngIf="loginForm.controls.userid.invalid && loginForm.controls.userid.dirty" class="help-block">
-                        <div *ngIf="loginForm.controls.userid.errors.required">帳號不能為空</div>
+                        <div *ngIf="loginForm.controls.userid.errors.required">此欄位不能為空</div>
                   </div>
+                  <ng-template #userPrefixTemplate><i nz-icon nzType="user" nzTheme="outline"></i></ng-template>
               </div>
           </div>
-          <div class="form-group" [ngClass]="{ 'has-error': loginForm.controls.password.errors }">
-            <label for="password" class="col-md-3 col-sm-5 col-xs-12">密碼</label>
-            <div class="col-md-9 col-sm-7 col-xs-12">
-                <input type="password" class="form-control" formControlName="password"/>
+          <div class="form-group" >
+            <label for="password" >密碼</label>
+            <div >
+              <nz-input-group [nzPrefix]="passwordPrefixTemplate">
+                <input nz-input type="password" class="form-control" formControlName="password"  pattern="[a-zA-Z0-9@.,;]*"/>
+              </nz-input-group>
                 <div *ngIf="loginForm.controls.password.invalid && loginForm.controls.password.dirty" class="help-block">
-                        <div *ngIf="loginForm.controls.password.errors.required">密碼不能為空</div>
+                        <div *ngIf="loginForm.controls.password.errors.required">此欄位不能為空</div>
+                        <div *ngIf="loginForm.controls.password.errors.pattern">帳號只能包含@,.;大小寫英文字母及數字</div>
                 </div>
+                <ng-template #passwordPrefixTemplate><i nz-icon nzType="lock" nzTheme="fill"></i></ng-template>
             </div>
           </div>
           <div class="form-group">
-            <button class="action-button" type="submit" [disabled]="!loginForm.valid" (click)="login()">登入</button>
-            <button class="action-button" type="submit" (click)="register()">註冊</button>
+            <button class="action-button" type="submit" [disabled]="!loginForm.valid">登入</button>
           </div>
       </form>
     </div>
+    尚未有帳號?<a class="button button-clear" routerLink="/register" routerLinkActive="'active'" >立即註冊</a>
 </div>

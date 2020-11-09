@@ -155,27 +155,30 @@ def register():
     
     if request.method == 'POST':
         username = request.form['username']
+        display_name = request.form['display_name']
         password = request.form['password']
         email = request.form['email']
         error = None
         success_code = 200
         error_code = 400
 
-        if not username:
+
+        if username == '':
             error = 'Username is required.'
-        elif not password:
+        elif password == '':
             error = 'Password is required.'
 
-        elif User.objects(uname=username) is not None:
+        elif User.objects(uname=username).first() is not None:
             error = 'User {} is already registered.'.format(username)
 
-        elif User.objects(email=email) is not None:
+        elif User.objects(email=email).first() is not None:
             error = 'Email {} is already registered.'.format(email)
 
         if error is None:
             new_user = User(uid=uuid.uuid4(), uname=username, \
+                            display_name=display_name,
                             password=generate_password_hash(password), \
-                            level=2, email=email, regist_date=datetime.now())
+                            level=2, email=email, register_date=datetime.date(), register_time=datetime.now())
             new_user.save()
             return jsonify({
                 'data' : None,\
@@ -203,8 +206,11 @@ def login():
         user = User.objects(uname=username).first()
 
         if user is None:
-            error = 'Incorrect username.'
-
+            user = User.objects(email=username).first()
+            if user is None:
+                error = 'Incorrect username.'
+            else:
+                error = None
         elif not check_password_hash(user.password, password):
             error = 'Incorrect password.'
 
