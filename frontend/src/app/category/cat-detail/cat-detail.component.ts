@@ -64,7 +64,4 @@ export class CatDetailComponent implements OnInit {
     }
   }
 
-  
-  handleCancel(part: string) {
-  }
 }
