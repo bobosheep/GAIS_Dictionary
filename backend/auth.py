@@ -37,7 +37,7 @@ def user_logging(view):
             'DELETE': 1
         }
 
-        user_ip = request.host
+        user_ip = request.remote_addr
         action_time = datetime.now()
         action_part_str = request.path
         action = method[request.method]
@@ -64,6 +64,7 @@ def user_logging(view):
                 if len(args) > 2:
                     part = args[2] 
                     cat = CategoryNode.objects(cid=part).first()
+                    action_part = cat
                     if part == '':
                         action_part_str = '全部類別'
                     elif cat is not None:
