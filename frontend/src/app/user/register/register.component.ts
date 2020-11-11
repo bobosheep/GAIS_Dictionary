@@ -36,7 +36,7 @@ export class RegisterComponent implements OnInit {
             this.registerForm.removeControl('passwordValid')
             this.auth.register(this.registerForm.value).subscribe((ret) => {
                 this.message.success(ret.message)
-                // this.router.navigateByUrl('/login')
+                this.router.navigateByUrl('/login')
             }, (error) => {
                 this.message.error(error.error.message)
             })

@@ -176,10 +176,10 @@ def register():
             error = 'Email {} is already registered.'.format(email)
 
         if error is None:
-            new_user = User(uid=uuid.uuid4(), uname=username, \
-                            display_name=display_name,
+            new_user = User(uid=str(uuid.uuid4())[:8], uname=username, \
+                            display_name=display_name, activated=False, \
                             password=generate_password_hash(password), \
-                            level=2, email=email, register_date=datetime.date(), register_time=datetime.now())
+                            level=2, email=email, register_date=datetime.now().date(), register_time=datetime.now())
             new_user.save()
             return jsonify({
                 'data' : None,\
