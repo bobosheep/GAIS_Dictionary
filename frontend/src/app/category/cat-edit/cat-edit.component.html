@@ -52,8 +52,23 @@
 
 
 
-    
-    <div *ngIf="catDetail.seeds && catDetail.seeds.length> 0">
+    <nz-divider nzText="子類別"></nz-divider>
+    <div>
+        <span *ngFor="let cat_child of catDetail.children">
+            <app-term 
+                routerLink="/category/edit/{{catDetail.cname}}/{{cat_child.cname}}" 
+                routerLinkActive="active"
+                [queryParams]="{cid: cat_child._id}"
+                [term]="cat_child.cname"
+                [closeable]="false"
+                [type]="'info'"
+            >   
+            </app-term>
+        </span>
+    </div>
+        
+    <nz-divider  nzText="類別詞內容"></nz-divider>
+    <!-- <div *ngIf="catDetail.seeds && catDetail.seeds.length> 0"> -->
         <div class="action-button-wrapper">
             <button nz-button zType="primary" class="action-button" (click)="openSeedModal('編輯種子', seedModal)">種子內容</button>
             <button nz-button zType="primary" class="action-button" (click)="openExtensionModal('擴展程式設定')">類別詞擴展</button>
@@ -96,7 +111,7 @@
         </div>
         <div>
         </div>
-    </div>
+    <!-- </div> -->
 
 </section>
 <ng-template #checkedTemplate><i style="font-size: 14px;" nz-icon nzType="check" nzTheme="outline"></i></ng-template>

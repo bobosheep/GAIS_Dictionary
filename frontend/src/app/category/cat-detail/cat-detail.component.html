@@ -43,6 +43,7 @@
 
     
     <div *ngIf="catDetail.seeds && catDetail.seeds.length> 0">
+
         <div class="action-button-wrapper">
             <button nz-button zType="primary" class="action-button" (click)="openModal('seeds', '種子', seedModal)">種子內容</button>
         </div>
@@ -58,6 +59,7 @@
 
 
     <div *ngIf="catDetail.children && catDetail.children.length> 0">
+        <nz-divider nzText="子類別"></nz-divider>
         <div class="children-wrapper">
             <div class="child-box" *ngFor="let cat_child of catDetail.children">
                 <h4 class="child-title" 
