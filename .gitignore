@@ -136,3 +136,7 @@ backend/static
 
 # word2vec model
 word2vec/models
+
+
+# corpus data
+corpus/

@@ -361,7 +361,6 @@ class CategorySeedsAPI(MethodView):
         else:
             cat = CategoryNode.objects(cid=cid).only('seeds').only('cname').only('cid').only('edit_cnt')
             if cat.first() is None:
-                is_error = True
                 self.data = None
                 self.message = 'Category not found!'
                 self.stat_code = 404

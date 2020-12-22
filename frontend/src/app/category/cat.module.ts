@@ -14,16 +14,16 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzMessageModule, NzMessageService } from 'ng-zorro-antd/message';
+import { NzMessageModule } from 'ng-zorro-antd/message';
 
 import { CategoryRoutingModule } from './cat-routing.module';
 import { CatHomeComponent } from './cat-home/cat-home.component';
 import { CatComponent } from './cat.component';
 import { CatEditComponent } from './cat-edit/cat-edit.component';
 import { CatExtensionComponent, ExtensionModalComponent } from './cat-extension/cat-extension.component';
-import { CanActivateEdition, CategoryService } from '../services/category.service';
+import { CategoryService } from '../services/category.service';
 import { CatDetailComponent } from './cat-detail/cat-detail.component';
-import { httpInterceptorProviders } from '../services/auth.service';
+import { httpInterceptorProviders, CanActivateEdition } from '../services/auth.service';
 import { TermComponent } from '../components/term.component';
 import { ExtensionFormComponent } from '../components/extension-form.component';
 

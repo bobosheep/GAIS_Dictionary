@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse, HttpRequest, HttpInterceptor, HttpHandler, HttpEvent, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { NzMessageService } from 'ng-zorro-antd';
 
 import { User, UserDetail } from '../interfaces/user'
 import { Router } from '@angular/router';
@@ -92,6 +94,23 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 }
 
+@Injectable()
+export class CanActivateEdition implements CanActivate {
+  constructor(private as: AuthService, private message: NzMessageService) {}
+
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean|UrlTree>|Promise<boolean|UrlTree>|boolean|UrlTree {
+    this.as.checkCurrentUser()
+    if(this.as.user && this.as.user.level <= 1){
+        return true;
+    } else {
+        this.message.create('error', '沒權限進行編輯，請<strong>登入</strong>或是<strong>申請為編輯人員</strong>。')
+        return false;
+    }
+  }
+}
 export const httpInterceptorProviders = [
   { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
 ];

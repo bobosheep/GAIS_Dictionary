@@ -2,6 +2,9 @@
 <section class="wrapper">
     <nz-page-header [nzTitle]="pageTitle">
         <nz-breadcrumb nz-page-header-breadcrumb>
+            <nz-breadcrumb-item>
+              分類辭典
+            </nz-breadcrumb-item>
             <nz-breadcrumb-item *ngIf="catDetail.is_root ; else path">
                {{catDetail.cname}} 
             </nz-breadcrumb-item>
@@ -42,7 +45,7 @@
     </ng-template>
 
     
-    <div *ngIf="catDetail.seeds && catDetail.seeds.length> 0">
+    <div *ngIf="(catDetail.seeds && catDetail.seeds.length > 0) || (catDetail.terms && catDetail.terms.length> 0)">
 
         <div class="action-button-wrapper">
             <button nz-button zType="primary" class="action-button" (click)="openModal('seeds', '種子', seedModal)">種子內容</button>
