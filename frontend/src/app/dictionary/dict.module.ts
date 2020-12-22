@@ -38,6 +38,9 @@ import { TermService } from '../services/term.service';
         DictHomeComponent,
         DictDetailComponent,
         DictViewComponent,
+        DictNWDComponent,
+        DictNewWordComponent,
+        DictSearchComponent
     ],
     imports: [
         CommonModule,
