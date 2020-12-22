@@ -1,0 +1,66 @@
+<section class="wrapper header">
+    <h1 class="title"> 辭典系統 </h1>
+    <button class="button-outline usage-button" [disabled]="true">下載辭典</button>
+    <p class="description"> 編輯、搜尋字詞 </p>
+    <div class="search-bar-wrapper">
+        <div class="term-search-bar">
+            <nz-input-group  [nzSuffix]="suffixIconSearch">
+                <input type="text" nz-input placeholder="快速找尋想要的詞" />
+            </nz-input-group>
+            <ng-template #suffixIconSearch>
+              <i nz-icon nzType="search"></i>
+            </ng-template>
+        </div>
+    </div>
+    
+</section>
+
+<section class="wrapper">
+    <div class="blocks detail" style="margin: 2.5em 0;">
+        <div class="block detail">
+            <nz-statistic [nzValue]="240212 | number" [nzTitle]="'收錄詞彙'" [nzPrefix]="prefixTpl"></nz-statistic>
+            <ng-template #prefixTpl><i nz-icon nzType="inbox"></i></ng-template>
+        </div>
+        <div class="block detail">
+            <nz-statistic [nzValue]="12345 | number" [nzTitle]="'尚未確認新詞'" ></nz-statistic>
+        </div>
+        <div class="block detail">
+            <nz-countdown  [nzValueTemplate]="updateTime" [nzTitle]="'最近更新日期'" ></nz-countdown >
+            <ng-template #updateTime>{{update_time | date:'mediumDate'}}</ng-template>
+        </div>
+
+    </div>
+    <div class="blocks">
+        <div class="block service" id="edit-dictionary"
+            routerLink="/dictionary/view"
+            routerLinkActive="'active'"
+        >
+            <div class="background"></div>
+            <h1>瀏覽</h1>
+        </div>
+        <div class="block service"  id="search-dictionary"
+            routerLink="/dictionary/search"
+            routerLinkActive="'active'"
+        >
+            <div class="background"></div>
+            <h1>搜尋</h1>
+        </div>
+    </div>
+    <div class="blocks">
+        <div class="block service"  id="new-word-detection"
+            routerLink="/dictionary/nwd"
+            routerLinkActive="'active'"
+        >
+            <div class="background"></div>
+            <h1>新詞偵測</h1>
+        </div>
+        <div class="block service" id="add-new-word"
+            routerLink="/dictionary/nwd/add"
+            routerLinkActive="'active'"
+        >
+            <div class="background"></div>
+            <h1>加入新詞</h1>
+        </div>
+    </div>
+</section>
+

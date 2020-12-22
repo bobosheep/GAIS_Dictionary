@@ -1,0 +1,56 @@
+<section class="wrapper">
+    <nz-page-header >
+        <nz-breadcrumb nz-page-header-breadcrumb>
+            <nz-breadcrumb-item>
+                辭典
+            </nz-breadcrumb-item>
+            <nz-breadcrumb-item>
+                <a routerLink="/dictionary/view/{{term.word_length}}" routerLinkActive="'activate'">
+                    {{ term.word_length }}字詞
+                </a>
+            </nz-breadcrumb-item>
+            <nz-breadcrumb-item>
+                {{ term.tname }}
+            </nz-breadcrumb-item>
+        </nz-breadcrumb>
+
+        <nz-page-header-title>{{ term.tname }}</nz-page-header-title>
+        <nz-page-header-subtitle>{{ term.chuyin }}</nz-page-header-subtitle>
+
+        <nz-page-header-content>
+            <div class="content">
+                <div class="main">
+                    <nz-descriptions [nzBordered]="false" [nzColumn]="2">
+                        <nz-descriptions-item nzTitle="最近更新">{{ term.last_updated | date }}</nz-descriptions-item>
+                        <nz-descriptions-item nzTitle="編輯人員" [nzSpan]="2"> {{ term.editors }}</nz-descriptions-item>
+                        <nz-descriptions-item nzTitle="注音" >{{ term.chuyin }}</nz-descriptions-item>
+                        <nz-descriptions-item nzTitle="詞頻" >{{ term.frequency }}</nz-descriptions-item>
+                        <nz-descriptions-item nzTitle="分類" >{{ term.categories }}</nz-descriptions-item>
+                    </nz-descriptions>
+                </div>
+                <div class="extra">
+                    <div>
+                        <nz-statistic nzTitle="瀏覽次數" [nzValue]="term.view_cnt" [nzPrefix]="viewPrefix"></nz-statistic>
+                        <nz-statistic nzTitle="編輯次數" [nzValue]="term.edit_cnt" [nzPrefix]="editPrefix" style="margin: 0 32px"></nz-statistic>
+                        <ng-template #viewPrefix><i nz-icon nzType="eye"></i></ng-template>
+                        <ng-template #editPrefix><i nz-icon nzType="edit"></i></ng-template>
+                    </div>
+
+                </div>
+            </div>
+        </nz-page-header-content>
+
+        <nz-page-header-extra>
+            <button nz-button nzType="primary" >edit</button>
+            <!-- <button nz-button nzType="primary" [routerLink]="routeParams" routerLinkActive="active" [queryParams]="{ cid: catDetail._id}">edit</button> -->
+        </nz-page-header-extra>
+        <nz-page-header-footer>
+          <nz-tabset [nzSelectedIndex]="1">
+            <nz-tab nzTitle="網路聲量"></nz-tab>
+            <nz-tab nzTitle="字詞解釋"></nz-tab>
+            <nz-tab nzTitle="相關詞"></nz-tab>
+            <nz-tab nzTitle="圖片影音"></nz-tab>
+          </nz-tabset>
+        </nz-page-header-footer>
+    </nz-page-header>
+</section>

@@ -1,0 +1,106 @@
+.wrapper {
+    width: 90%;
+    margin: 0 auto;
+    position: relative;
+}
+h1.title {
+    display: inline;
+    margin-top: .5em;
+    margin-right: .2em;
+    font-size: 28px;
+}
+.usage-button { 
+    height: 24px;
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 .5em;
+    padding: 0 12px;
+}
+.description {
+    margin-top: .7em;
+}
+
+.search-bar-wrapper {
+    position: absolute;
+    right: -12px;
+    top: 24px;
+}
+
+.term-search-bar {
+    position: relative;
+    min-width: 300px;
+    width: 350px;
+}
+
+.blocks{
+    width: 100%;
+    padding: 1em 2em;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-content: center;
+}
+.blocks.detail {
+    justify-content: center;
+}
+.block {
+    position: relative;
+    display: flex;
+}
+.block.detail {
+    width: 150px;
+    margin: .5em 1.5em;
+}
+.block.service {
+    width: 420px;
+    height: 180px;
+    margin: 0 2em;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.background:hover {
+    opacity: 0.65;
+    cursor: pointer;
+    transform: scale(1.05);
+}
+.background {
+    opacity: 0.85;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    transition: .3s;
+}
+.block.service > h1 {
+    position: absolute;
+    color: #eee;
+    font-weight: 600;
+    /* left: calc(50% - 48px);
+    bottom: calc(50% - 20px); */
+    top: 18px;
+    width: fit-content;
+    text-align: center;
+    font-size: 26px;
+    margin-left: 24px;
+    transition: .3s;
+}
+#edit-dictionary > .background {
+    background-image: url('https://images.chinatimes.com/newsphoto/2020-01-07/656/20200107002128.jpg');
+    background-position-y: -72px;
+}
+#search-dictionary > .background {
+    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWTVl_P2oYcpsakCe0cWKroXKP5o0ws2SkIA&usqp=CAU');
+    background-position-y: -32px;
+}
+#new-word-detection > .background {
+    background-image: url('https://i3.read01.com/SIG=1p0cqhl/304769427339487a7838.jpg');
+    background-position-y: -16px;
+}
+#add-new-word > .background {
+    background-image: url('https://cdn.moneysmart.tw/wp-content/uploads/2019/01/23115032/books-book-pages-read-literature-159866-1024x686.jpeg');
+}
+#add-new-word > h1{
+    color: #333;
+}

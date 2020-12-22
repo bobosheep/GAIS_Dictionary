@@ -14,6 +14,9 @@ const routes: Routes = [
   { path: 'category', 
     loadChildren: () => import('./category/cat.module').then(m => m.CategoryModule)
   },
+  { path: 'dictionary', 
+    loadChildren: () => import('./dictionary/dict.module').then(m => m.DictionaryModule)
+  },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'admin',

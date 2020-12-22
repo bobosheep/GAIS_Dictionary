@@ -81,6 +81,15 @@ class Report(Document):
 
 class Term(Document):
     tname = StringField(unique=True)
+    word_length = IntField()
+    pos = ListField(StringField())
+    chuyin = ListField(StringField())
+    creator = ReferenceField(User)
+    created = DateTimeField()
+    editors = ListField(ReferenceField(User))
+    last_updated = DateTimeField()
+    view_cnt = IntField()
+    edit_cnt = IntField()
 
     meta = {'allow_inheritance': True}
 
@@ -122,11 +131,8 @@ class TermDetail(Term):
     related_synonym = ListField(StringField())
     antonym = ListField(StringField())
     volume = DictField()
-    chuyin = ListField(StringField())
+    frequency = IntField()
     meaning = StringField()
-    imgs = ListField(ImageField())
-    last_updated = DateTimeField()
-    view_cnt = IntField()
-    edit_cnt = IntField()
+    imgs = ListField(DictField())
 
 

@@ -1,5 +1,6 @@
 import { AdminDashboard, AdminUsers } from './admin';
 import { Category, CategoryDetail } from './category';
+import { Term, TermDetail } from './term';
 import { User, UserDetail } from './user';
 
 
@@ -22,7 +23,13 @@ export interface AdminUsersAPIDResponse {
     message : string | undefined;
 }
 
-export interface ExtednAPIResponse {
+export interface ExtendAPIResponse {
     datas?: Array<string> | Array<any>;
+    message : string | undefined;
+}
+
+export interface TermAPIResponse {
+    data ?: Term | TermDetail;
+    datas ?: Array<Term> | Array<TermDetail>;
     message : string | undefined;
 }

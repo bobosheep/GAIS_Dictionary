@@ -1,0 +1,26 @@
+<nav class="menu float-left">
+    <div class="title-wrapper" routerLink="/dictionary" routerLinkActive="active">
+        <h3>辭典</h3>
+        <h3>Dictionary</h3>
+    </div>
+    <ul nz-menu [nzMode]="'vertical'" style="width: 100%; min-height: 70vh;" >
+        <li nz-menu-item >
+            <a routerLink="/dictionary/view" routerLinkActive="active">瀏覽辭典</a>
+        </li>
+        <li nz-menu-item >
+            <a>字詞搜尋</a>
+        </li>
+        <li nz-menu-group [nzTitle]="'新詞系統'">
+            <ul>
+                <li nz-menu-item >
+                    <a>新詞偵測</a>
+                </li>
+                <li nz-menu-item >
+                    <a>新詞編輯</a>
+                </li>
+            </ul>
+    </ul>
+</nav>
+<section class="content">
+    <router-outlet></router-outlet>
+</section>

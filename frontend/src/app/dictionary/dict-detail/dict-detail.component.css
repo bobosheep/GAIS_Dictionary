@@ -1,0 +1,14 @@
+.wrapper {
+    width: 90%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.content {
+    display: flex;
+}
+.extra > div {
+    display: flex;
+    width: max-content;
+    justify-self: end;
+}

@@ -5,7 +5,7 @@ from flask_cors import CORS
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException, InternalServerError
 
-from . import auth, cat, admin, extension
+from . import auth, cat, admin, extension, term
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -39,6 +39,7 @@ def start_app(config=None):
 
 
     # Dictionary API
+    app.register_blueprint(term.bp)
 
 
     # Admin API  begin w/ admin

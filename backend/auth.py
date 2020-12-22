@@ -9,7 +9,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from backend.db import User, CategoryNode, UserLog
+from backend.db import User, CategoryNode, UserLog, TermDetail
 
 tokens = dict()
 user_token = dict()
@@ -135,7 +135,30 @@ def user_logging(view):
                 action = '獲取'
                 term = request.args['term']
                 action_part_str = f'{term}的相關詞'
-            pass
+                
+        elif  request.blueprint == 'term':
+            if request.endpoint == 'term.term_api':
+                args = action_part_str.split('/')
+                if len(args) > 2:
+                    part = args[2]
+                    print(part) 
+                    term = TermDetail.objects(tname=part).first()
+                    action_part = term
+                    if part == '':
+                        action_part_str = '詞介面'
+                    elif term is not None:
+                        action_part_str = term.tname
+                    else:
+                        action_part = None
+                        action_part_str = '未編入的詞'
+
+
+                    if request.method == 'POST':
+                        # add new category
+                        action_part_str = request.form['tname']
+                    if request.method == 'DELETE':
+                        # add new category
+                        action_part_str = part
 
         print(f'[{print_level}] User {username} {action} {action_part_str} {request_failed} @ {action_time.strftime("%Y-%m-%d %H:%M")} from {user_ip}')
         description = f'\"{username}\"{action}<{action_part_str}>{request_failed}@{action_time}從 ip:{user_ip}。'
