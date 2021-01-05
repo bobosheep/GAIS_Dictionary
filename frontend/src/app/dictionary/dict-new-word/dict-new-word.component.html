@@ -92,13 +92,13 @@
 
 <ng-template #AcceptHeader>
     <h3 class="title">新詞列表</h3>
-    <button id="refresh-btn" nz-button nzType="default" nzShape="circle" (click)="loadStat()">
+    <button id="refresh-btn" nz-button nzType="default" nzShape="circle" (click)="loadStat(0)">
         <i nz-icon nzType="reload" nzTheme="outline"></i>
     </button>
 </ng-template>
 <ng-template #RejectHeader>
     <h3 class="title">過濾列表</h3>
-    <button id="refresh-btn" nz-button nzType="default" nzShape="circle" (click)="loadStat()">
+    <button id="refresh-btn" nz-button nzType="default" nzShape="circle" (click)="loadStat(1)">
         <i nz-icon nzType="reload" nzTheme="outline"></i>
     </button>
 </ng-template>
