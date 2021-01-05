@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -7,9 +8,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+  searchTerm: string;
+  randomTerms: string[];
+
+  constructor(private route: Router) { }
 
   ngOnInit() {
+    this.searchTerm = '';
+    this.randomTerms = ['中正大學', '台北', '蔡英文', '柯文哲', '周杰倫', '美國', '台鐵', '體操', '重訓', '射箭', '電池', '插座',  '遙控器']
   }
-
+  search() {
+    console.log(this.searchTerm)
+    if (this.searchTerm !== ''){
+      this.route.navigateByUrl(`/dictionary/${this.searchTerm}`)
+    }
+  }
+  randomSearch() {
+    let idx = Math.ceil( Math.random() * 12);
+    this.route.navigateByUrl(`/dictionary/${this.randomTerms[idx]}`)
+  }
 }

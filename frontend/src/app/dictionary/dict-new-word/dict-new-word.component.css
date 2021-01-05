@@ -1,0 +1,47 @@
+.wrapper {
+    width: 90%;
+    margin: 0 auto;
+}
+h1.title {
+    display: inline;
+    margin-top: .5em;
+    margin-right: .2em;
+    font-size: 28px;
+}
+h3.title {
+    display: inline;
+    margin-right: .5em;
+    font-size: 18px;
+}
+.usage-button { 
+    height: 24px;
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 .5em;
+    padding: 0 12px;
+}
+.description {
+    margin-top: .7em;
+}
+.list-wrapper {
+    position: relative;
+    display: flex;
+    flex-flow: row  wrap;
+    justify-content: center;
+
+}
+#accept-list, #reject-list {
+    width: 100%;
+}
+.list {
+    min-width: 500px;
+    margin: .5em 1em;
+    display: flex;
+
+}
+
+
+
+#refresh-btn {
+    width: 24px;
+}

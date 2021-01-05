@@ -13,6 +13,9 @@ export class TermService {
     constructor(private http: HttpClient) { }
     
     // Term API
+    getTermStat() {
+        return this.http.get<{data: any, message: string}>(`${this.server}/terms/stat`)
+    }
     getTermList(wlen: number, size: number) {
         return this.http.get<TermAPIResponse>(`${this.server}/terms/?wlen=${wlen}&size=${size}`)
     }

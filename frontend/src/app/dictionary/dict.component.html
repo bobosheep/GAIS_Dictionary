@@ -7,16 +7,16 @@
         <li nz-menu-item >
             <a routerLink="/dictionary/view" routerLinkActive="active">瀏覽辭典</a>
         </li>
-        <li nz-menu-item >
-            <a>字詞搜尋</a>
-        </li>
+        <!-- <li nz-menu-item >
+            <a routerLink="/dictionary/search" routerLinkActive="active">字詞搜尋</a>
+        </li> -->
         <li nz-menu-group [nzTitle]="'新詞系統'">
             <ul>
                 <li nz-menu-item >
-                    <a>新詞偵測</a>
+                    <a routerLink="/dictionary/nwd/checked" routerLinkActive="'active'">已加入新詞</a>
                 </li>
                 <li nz-menu-item >
-                    <a>新詞編輯</a>
+                    <a routerLink="/dictionary/nwd/add" routerLinkActive="'active'">新詞篩選</a>
                 </li>
             </ul>
     </ul>

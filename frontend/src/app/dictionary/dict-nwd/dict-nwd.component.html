@@ -1,0 +1,65 @@
+<section class="wrapper header">
+    <h1 class="title"> 新詞篩選 </h1>
+    <button class="button-outline usage-button" routerLink="/dictionary/nwd/checked" routerLinkActive="'active'">最近加入的新詞</button>
+
+    <p class="description"> 上傳新詞檔案、快速篩選新詞 </p>
+
+    <nz-upload id="upload-btn"  [(nzFileList)]="file_list" [nzBeforeUpload]="beforeUpload">
+        <button nz-button><i nz-icon nzType="upload"></i><span>選擇候選詞檔案</span></button>
+    </nz-upload>
+    <button
+      nz-button
+      [nzType]="'primary'"
+      [nzLoading]="uploading"
+      (click)="uploadFile()"
+      [disabled]="file_list.length == 0"
+      style="vertical-align: top;"
+    >
+      {{ uploading ? '上傳中...' : '上傳' }}
+    </button>
+    <button id="refresh-btn" nz-button nzType="default" nzShape="circle" (click)="loadStat()">
+        <i nz-icon nzType="reload" nzTheme="outline"></i>
+    </button>
+    
+    
+</section>
+
+
+<section class="wrapper">
+    <div class="wrapper new-word-list">
+        <nz-table #basicTable [nzData]="new_word_list">
+            <thead>
+              <tr>
+                <th>候選詞</th>
+                <th>詞頻</th>
+                <th>上傳者</th>
+                <th>上傳日期</th>
+                <th>是否為新詞</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let data of basicTable.data">
+                <td>{{ data.tname }}</td>
+                <td>{{ data.frequency }}</td>
+                <td>{{ data.creator }}</td>
+                <td>{{ data.created }}</td>
+                <td>
+                    <i  class="action-button" nz-icon 
+                        [nzType]="'check-circle'" [nzTheme]="'twotone'" 
+                        [nzTwotoneColor]="'#52c41a'"
+                        (click)="checkTerm(data.tname, true)"
+                    >
+                    </i>
+                    <i  class="action-button" nz-icon 
+                        [nzType]="'close-circle'" [nzTheme]="'twotone'" 
+                        [nzTwotoneColor]="'#ff6347'"
+                        (click)="checkTerm(data.tname, false)"
+                    >
+                    </i>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+    </div>
+
+</section>

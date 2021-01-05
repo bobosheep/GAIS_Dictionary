@@ -1,0 +1,111 @@
+<section class="wrapper header">
+    <h1 class="title"> 已加入的新詞 </h1>
+    <p class="description"> 最近新增的新詞 </p>
+    
+</section>
+
+<section class="wrapper list-wrapper">
+    <div class="list">
+        <nz-list 
+            id="accept-list"
+            style="border-color: rgb(39, 211, 39);"
+            nzBordered 
+            [nzDataSource]="new_terms" 
+            [nzHeader]="AcceptHeader"
+            [nzItemLayout]="'horizontal'"
+            [nzLoading]="accept_loading"
+            [nzRenderItem]="item"
+        >
+            <ng-template #item let-item>
+                <nz-list-item [nzActions]="[recheckAction, editAction, moreAction]">
+                    <nz-list-item-meta
+                        [nzTitle]="termTitle"
+                        [nzDescription]="termDescript"
+                    >
+                        <ng-template #termTitle>
+                            <a href="">{{ item.tname }}</a>
+                        </ng-template>
+                        <ng-template #termDescript>
+                            <span *ngIf="item.accepts.length > 0">
+                                <a href="" *ngFor="let checker of item.accepts; index as i">
+                                    {{ checker }}
+                                    <span *ngIf="i < item.accepts.length - 1">,</span>
+                                </a> 
+                                認定為新詞
+                            </span>
+                            <span *ngIf="item.rejects.length > 0">
+                                <a href="" *ngFor="let checker of item.rejects">{{ checker }}</a> 認定不為新詞
+                            </span>
+                        </ng-template>
+                        <ng-template #moreAction>
+                            <i nz-icon nzType="read" nzTheme="outline" routerLink="/dictionary/{{item.tname}}" routerLinkActive="'activate'"></i>
+                        </ng-template>
+                    </nz-list-item-meta>
+                </nz-list-item>
+            </ng-template>
+        </nz-list>
+
+    </div>
+    <div class="list">
+        <nz-list 
+            id="reject-list"
+            style="border-color: tomato;"
+            nzBordered 
+            [nzDataSource]="reject_terms" 
+            [nzHeader]="RejectHeader"
+            [nzItemLayout]="'horizontal'"
+            [nzLoading]="reject_loading"
+            [nzRenderItem]="item"
+        >
+            <ng-template #item let-item>
+                <nz-list-item [nzActions]="[recheckAction, editAction, moreAction]">
+                    <nz-list-item-meta
+                        [nzTitle]="termTitle"
+                        [nzDescription]="termDescript"
+                    >
+                        <ng-template #termTitle>
+                            <a href="">{{ item.tname }}</a>
+                        </ng-template>
+                        <ng-template #termDescript>
+                            <span *ngIf="item.accepts.length > 0">
+                                <a href="" *ngFor="let checker of item.accepts; index as i">
+                                    {{ checker }}
+                                    <span *ngIf="i < item.accepts.length - 1">,</span>
+                                </a> 
+                                認定為新詞
+                            </span>
+                            <span *ngIf="item.rejects.length > 0">
+                                <a href="" *ngFor="let checker of item.rejects">{{ checker }}</a> 認定不為新詞
+                            </span>
+                        </ng-template>
+                        
+                        <ng-template #moreAction>
+                            <i nz-icon nzType="read" nzTheme="outline" routerLink="/dictionary/{{item.tname}}" routerLinkActive="'activate'"></i>
+                        </ng-template>
+                    </nz-list-item-meta>
+                </nz-list-item>
+            </ng-template>
+        </nz-list>
+
+    </div>
+</section>
+
+<ng-template #AcceptHeader>
+    <h3 class="title">新詞列表</h3>
+    <button id="refresh-btn" nz-button nzType="default" nzShape="circle" (click)="loadStat()">
+        <i nz-icon nzType="reload" nzTheme="outline"></i>
+    </button>
+</ng-template>
+<ng-template #RejectHeader>
+    <h3 class="title">過濾列表</h3>
+    <button id="refresh-btn" nz-button nzType="default" nzShape="circle" (click)="loadStat()">
+        <i nz-icon nzType="reload" nzTheme="outline"></i>
+    </button>
+</ng-template>
+
+<ng-template #recheckAction>
+    <i nz-icon nzType="like" nzTheme="outline"></i>
+</ng-template>
+<ng-template #editAction>
+    <i nz-icon nzType="dislike" nzTheme="outline"></i>
+</ng-template>

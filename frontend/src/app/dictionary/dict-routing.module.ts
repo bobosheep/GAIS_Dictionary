@@ -7,6 +7,7 @@ import { DictHomeComponent } from './dict-home/dict-home.component';
 import { DictViewComponent } from './dict-view/dict-view.component';
 import { DictNWDComponent } from './dict-nwd/dict-nwd.component';
 import { DictComponent } from  './dict.component'
+import { DictNewWordComponent } from './dict-new-word/dict-new-word.component';
 
 
 const DictRoutes: Routes = [
@@ -30,16 +31,18 @@ const DictRoutes: Routes = [
         ]
       },{
         path: 'nwd',
-        component: DictNWDComponent,
         children : [
           {
-            path: ':action',
+            path: 'add',
+            canActivate: [CanActivateEdition],
             component: DictNWDComponent
+          },
+          {
+            path: 'checked',
+            component: DictNewWordComponent
           }
         ]
       },{
-        path: 'search',
-        component: DictNWDComponent
     //   },{
     //     path: 'edit',
     //     canActivate: [CanActivateEdition],
@@ -53,7 +56,6 @@ const DictRoutes: Routes = [
     //         ]
     //       }
     //     ]
-      },{
         path: ':term',
         children: [
         //  { path: ':subcategory', component: CatDetailComponent },

@@ -1,27 +1,14 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { registerLocaleData } from '@angular/common';
-import en from '@angular/common/locales/en';
-
-import zh from '@angular/common/locales/zh';
-import { NZ_I18N, zh_TW, en_US } from 'ng-zorro-antd';
-import { NzIconModule, NZ_ICON_DEFAULT_TWOTONE_COLOR } from 'ng-zorro-antd/icon';
-import { NzLayoutModule } from 'ng-zorro-antd/layout';
-import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { SharedModule} from './shared.module';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthService, httpInterceptorProviders } from './services/auth.service';
 import { HomeComponent } from './home/home.component';
 import { UserModule } from './user/user.module';
 import { NotFoundComponent } from './page-not-found/not-found.component';
-import { CanActivateAdmin } from './services/admin.service';
-
-registerLocaleData(en);
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 
@@ -33,23 +20,10 @@ registerLocaleData(en);
   ],
   imports: [
     BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
+    BrowserAnimationsModule,
     UserModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
-    HttpClientModule,
-    FormsModule,
-    NzLayoutModule,
-    NzMenuModule, 
-    NzIconModule
-  ],
-  providers: [
-    AuthService, 
-    httpInterceptorProviders, 
-    { provide: NZ_I18N, useValue: en_US },
-    { provide: NZ_ICON_DEFAULT_TWOTONE_COLOR, useValue: '#9b4dca' },
-    CanActivateAdmin
+    SharedModule
   ],
   bootstrap: [AppComponent]
 })

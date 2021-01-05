@@ -5,10 +5,10 @@
     <div class="search-bar-wrapper">
         <div class="term-search-bar">
             <nz-input-group  [nzSuffix]="suffixIconSearch">
-                <input type="text" nz-input placeholder="快速找尋想要的詞" />
+                <input type="text" nz-input placeholder="快速找尋想要的詞" [(ngModel)]="searchTerm" (keyup.enter)="search()"/>
             </nz-input-group>
             <ng-template #suffixIconSearch>
-              <i nz-icon nzType="search"></i>
+              <i nz-icon nzType="search" (click)="search()"></i>
             </ng-template>
         </div>
     </div>
@@ -18,11 +18,11 @@
 <section class="wrapper">
     <div class="blocks detail" style="margin: 2.5em 0;">
         <div class="block detail">
-            <nz-statistic [nzValue]="240212 | number" [nzTitle]="'收錄詞彙'" [nzPrefix]="prefixTpl"></nz-statistic>
+            <nz-statistic [nzValue]="total_terms | number" [nzTitle]="'收錄詞彙'" [nzPrefix]="prefixTpl"></nz-statistic>
             <ng-template #prefixTpl><i nz-icon nzType="inbox"></i></ng-template>
         </div>
         <div class="block detail">
-            <nz-statistic [nzValue]="12345 | number" [nzTitle]="'尚未確認新詞'" ></nz-statistic>
+            <nz-statistic [nzValue]="total_unchecks | number" [nzTitle]="'尚未確認新詞'" ></nz-statistic>
         </div>
         <div class="block detail">
             <nz-countdown  [nzValueTemplate]="updateTime" [nzTitle]="'最近更新日期'" ></nz-countdown >
@@ -38,28 +38,28 @@
             <div class="background"></div>
             <h1>瀏覽</h1>
         </div>
-        <div class="block service"  id="search-dictionary"
+        <!-- <div class="block service"  id="search-dictionary"
             routerLink="/dictionary/search"
             routerLinkActive="'active'"
         >
             <div class="background"></div>
             <h1>搜尋</h1>
-        </div>
+        </div> -->
     </div>
     <div class="blocks">
         <div class="block service"  id="new-word-detection"
-            routerLink="/dictionary/nwd"
+            routerLink="/dictionary/nwd/checked"
             routerLinkActive="'active'"
         >
             <div class="background"></div>
-            <h1>新詞偵測</h1>
+            <h1>最近新詞</h1>
         </div>
         <div class="block service" id="add-new-word"
             routerLink="/dictionary/nwd/add"
             routerLinkActive="'active'"
         >
             <div class="background"></div>
-            <h1>加入新詞</h1>
+            <h1>新詞篩選</h1>
         </div>
     </div>
 </section>

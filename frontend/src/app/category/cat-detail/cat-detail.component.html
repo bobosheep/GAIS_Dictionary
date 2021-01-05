@@ -54,7 +54,7 @@
             <h3>類別詞 ({{catDetail.terms.length}})</h3> 
         </div>
         <div>
-            <span *ngFor="let term of catDetail.terms">
+            <span *ngFor="let term of catDetail.terms" routerLink="/dictionary/{{term}}" routerLinkActive="'activate">
                 <app-term [term]="term"></app-term>
             </span>
         </div>

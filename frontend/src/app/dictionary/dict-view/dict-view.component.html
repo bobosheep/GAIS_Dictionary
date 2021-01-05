@@ -1,10 +1,15 @@
 <section class="wrapper">
     <div class="blocks" *ngFor="let nLen of term_datas">
-        <h1> <a routerLink="/dictionary/view/{{nLen.wlen}}" routerLinkActive="'activate'">{{ nLen.wlen }}字詞</a></h1>
+        <nz-divider [nzText]="title" nzOrientation="left"></nz-divider>
+        <ng-template #title>
+            <h2> <a routerLink="/dictionary/view/{{nLen.wlen}}" routerLinkActive="'activate'">{{ nLen.wlen }}字詞</a></h2>
+        </ng-template>
         <p class="terms-wrapper">
             <span *ngFor="let term of nLen.data">
-                <a routerLink="/dictionary/{{term.tname}}" routerLinkActive="'activate'">{{ term.tname }}</a>, 
+                <app-term  [term]="term.tname" routerLink="/dictionary/{{term.tname}}" routerLinkActive="'activate'"></app-term>
+                <!-- <a routerLink="/dictionary/{{term.tname}}" routerLinkActive="'activate'">{{ term.tname }}</a>,  -->
             </span>
         </p>
+        
     </div>
 </section>

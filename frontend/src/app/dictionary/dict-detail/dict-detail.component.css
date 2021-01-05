@@ -3,12 +3,15 @@
     margin: 0 auto;
     position: relative;
 }
-
+.not-found {
+    padding-top: 15%;
+}
 .content {
     display: flex;
 }
 .extra > div {
     display: flex;
     width: max-content;
+    flex-direction: row-reverse;
     justify-self: end;
 }

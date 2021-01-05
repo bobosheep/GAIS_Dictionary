@@ -75,7 +75,7 @@
             <button nz-button zType="primary" class="action-button" (click)="openTermExtensionParamModal('設定參數', termExtensionParamModal)">單詞擴展參數</button>
         </div>
         <div class="terms">
-            <h3>類別詞 ({{catDetail.terms.length}})</h3> (原 candidates) 
+            <h3>類別詞 ({{catDetail.terms.length}})</h3>
             <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'" (click)="openAddTermModal('加入類別詞', addTermModal)"><i nz-icon nzType="plus" nzTheme="outline"></i></button>
             
         </div>
@@ -90,7 +90,7 @@
         </div>
         <nz-divider></nz-divider>
         <div class="terms">
-            <h3>候選詞 ({{candidates.length}}) </h3>(原 news) 
+            <h3>候選詞 ({{candidates.length}}) </h3>
             <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'" (click)="moveCandidates()"><i  nz-icon nzType="export" nzTheme="outline"></i></button>
             <button nz-button class="action-icon" nzShape="circle" [nzSize]="'small'" (click)="clearCandidates()"><i  nz-icon nzType="delete" nzTheme="fill"></i></button>
             

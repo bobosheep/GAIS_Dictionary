@@ -1,4 +1,4 @@
-<section class="wrapper">
+<section class="wrapper" *ngIf="!term_not_found else NotFound">
     <nz-page-header >
         <nz-breadcrumb nz-page-header-breadcrumb>
             <nz-breadcrumb-item>
@@ -30,8 +30,8 @@
                 </div>
                 <div class="extra">
                     <div>
-                        <nz-statistic nzTitle="瀏覽次數" [nzValue]="term.view_cnt" [nzPrefix]="viewPrefix"></nz-statistic>
-                        <nz-statistic nzTitle="編輯次數" [nzValue]="term.edit_cnt" [nzPrefix]="editPrefix" style="margin: 0 32px"></nz-statistic>
+                        <nz-statistic nzTitle="編輯次數" [nzValue]="term.edit_cnt" [nzPrefix]="editPrefix"></nz-statistic>
+                        <nz-statistic nzTitle="瀏覽次數" [nzValue]="term.view_cnt" [nzPrefix]="viewPrefix" style="margin-right: 32px;"></nz-statistic>
                         <ng-template #viewPrefix><i nz-icon nzType="eye"></i></ng-template>
                         <ng-template #editPrefix><i nz-icon nzType="edit"></i></ng-template>
                     </div>
@@ -40,13 +40,12 @@
             </div>
         </nz-page-header-content>
 
-        <nz-page-header-extra>
+        <nz-page-header-extra >
             <button nz-button nzType="primary" >edit</button>
             <!-- <button nz-button nzType="primary" [routerLink]="routeParams" routerLinkActive="active" [queryParams]="{ cid: catDetail._id}">edit</button> -->
         </nz-page-header-extra>
         <nz-page-header-footer>
-          <nz-tabset [nzSelectedIndex]="1">
-            <nz-tab nzTitle="網路聲量"></nz-tab>
+          <nz-tabset [nzSelectedIndex]="0">
             <nz-tab nzTitle="字詞解釋"></nz-tab>
             <nz-tab nzTitle="相關詞"></nz-tab>
             <nz-tab nzTitle="圖片影音"></nz-tab>
@@ -54,3 +53,25 @@
         </nz-page-header-footer>
     </nz-page-header>
 </section>
+
+
+<ng-template #NotFound>
+    <section class="wrapper not-found">
+
+        <nz-empty
+            [nzNotFoundImage]="
+            'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'
+            "
+            [nzNotFoundContent]="contentTpl"
+            [nzNotFoundFooter]="footerTpl"
+        >
+            <ng-template #contentTpl>
+                <span> 沒找到 {{ term_name }} 詞 </span>
+            </ng-template>
+            <ng-template #footerTpl>
+                <button nz-button nzType="primary" (click)="goBack()">回上一頁</button>
+            </ng-template>
+        </nz-empty>
+    </section>
+
+</ng-template>

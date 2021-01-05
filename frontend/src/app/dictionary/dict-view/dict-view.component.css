@@ -4,8 +4,11 @@
 }
 .terms-wrapper {
     width: 80%;
-    margin-left: 20px;
+    margin-left: 12px;
 }
 .blocks {
-    margin: 1.5em 0;
+    margin-top: 5em;
+}
+.blocks:first-child {
+    margin: 0;
 }

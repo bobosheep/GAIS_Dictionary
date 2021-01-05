@@ -22,7 +22,7 @@ h1.title {
 
 .search-bar-wrapper {
     position: absolute;
-    right: -12px;
+    right: 0px;
     top: 24px;
 }
 

@@ -3,12 +3,12 @@
         <h1>GAIS Dictionary</h1>
     </section>
     
-    <form class="search-wrapper">
-        <input type="text" placeholder="Search a word" id="q_word">
+    <div class="search-wrapper">
+        <input type="text" placeholder="Search a word" id="q_word" [(ngModel)]="searchTerm">
         <div class="button-wrapper">
-            <button class="button" > Search </button>
-            <button class="button" > Random! </button>
+            <button class="button" (click)="search()"> Search </button>
+            <button class="button" (click)="randomSearch()"> Random! </button>
         </div>
         
-    </form>
+    </div>
 </main>
