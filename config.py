@@ -15,6 +15,8 @@ CONFIG['SERVER_IP']     = os.getenv('SERVER_IP')
 CONFIG['SERVER_PORT']   = os.getenv('SERVER_PORT')
 CONFIG['CORS']          = os.getenv('CORS')
 CONFIG['SECRET_KEY']    = os.getenv('SECRET_KEY')
+CONFIG['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
+CONFIG['ALLOWED_EXTENSIONS'] = os.getenv('ALLOWED_EXTENSIONS')
 
 CONFIG['MONGODB_ADDRESS']   = os.getenv('MONGODB_ADDRESS')
 CONFIG['MONGODB_NAME']      = os.getenv('MONGODB_NAME')

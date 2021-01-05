@@ -5,7 +5,7 @@ from flask_cors import CORS
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException, InternalServerError
 
-from . import auth, cat, admin, extension, term
+from . import auth, cat, admin, extension, term, db, nwd
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -19,6 +19,8 @@ def start_app(config=None):
     app.config['JSON_AS_ASCII'] = False
     app.config['DEBUG'] = config['DEBUG']
     app.config['SECRET_KEY'] = config['SECRET_KEY']
+    app.config['UPLOAD_FOLDER'] = config['UPLOAD_FOLDER']
+    app.config['ALLOWED_EXTENSIONS'] = config['ALLOWED_EXTENSIONS']
     if config['CORS']:
         CORS(app, supports_credentials=True)
 
@@ -41,12 +43,29 @@ def start_app(config=None):
     # Dictionary API
     app.register_blueprint(term.bp)
 
+    # New Word API
+    app.register_blueprint(nwd.bp)
+
 
     # Admin API  begin w/ admin
     app.register_blueprint(admin.bp)    
 
     # Other API
-    
+    @app.route("/search", methods=["GET"])
+    def search():
+        tname = request.args.get('term', type=str)
+        term_detail = db.TermDetail.objects().search_text(tname).first()
+        
+        if term_detail is not None:
+            return jsonify({
+                'data': term.TermDetailtoJSON(term_detail),
+                'message': f'Search result of {tname}!'
+            }), 200
+        else:
+            return jsonify({
+                'data': None,
+                'message': f'{tname} not found!'
+            }), 404
     @app.route("/<regex(r'(.*?)\.(svg|json|txt|png|ico|js|css|jpg)$'):file>", methods=["GET"])
     def public(file):
         return send_from_directory('static', file), 200

@@ -1,12 +1,13 @@
 import json
 import uuid
+from mongoengine import Q
 from datetime import datetime
 from flask.views import MethodView
 from flask import (
     jsonify, Blueprint, request, g
 )
 
-from backend.db import TermDetail, User
+from backend.db import TermDetail, User, UserLog, NewTerm
 from backend.auth import login_required, user_logging
 
 bp = Blueprint('term', __name__, url_prefix='/terms')
@@ -38,6 +39,9 @@ class TermAPI(MethodView):
                 self.message = f'Term {tname} not found!'
                 self.stat_code = 404
             else:
+                term.update(inc__view_cnt=1)
+                term = term.reload()
+                
                 self.data = TermDetailtoJSON(term)
                 self.message = f'Get term {tname}\'s seeds!'    
 
@@ -130,9 +134,9 @@ class TermAPI(MethodView):
         meaning = request.form.get('meaning', '', type=str)
 
 
-        term = TermDetail.objects(tname=tname)
+        term = TermDetail.objects(tname=tname).first()
 
-        if term.first() is None:
+        if term is None:
             self.data = None
             self.message = f'Term {tname} is not found!'
             self.stat_code = 404
@@ -158,7 +162,7 @@ class TermAPI(MethodView):
             term.update_one(inc__edit_cnt=1)
             term.update_one(set__last_updated=datetime.now())
             term.update_one(add_to_set__editors=[editor], full_result=True)
-            term = term.first()
+            term = term.reload()
 
             self.data = TermDetailtoJSON(term)
             self.message = f'Update {tname} detail successfully!'
@@ -193,3 +197,22 @@ class TermAPI(MethodView):
 term_view = user_logging(login_required(TermAPI.as_view('term_api')))
 bp.add_url_rule('/', defaults={'tname': None}, view_func=term_view, methods=['GET', 'POST'])
 bp.add_url_rule('/<string:tname>', view_func=term_view, methods=['GET', 'PUT', 'DELETE'])
+
+@bp.route('/stat', methods=['GET'])
+@user_logging
+def stat():
+    total_term = TermDetail.objects().count()
+    total_uncheck = NewTerm.objects().count()
+    last_updated = UserLog.objects(action_stat=True, level=1).only('action_time').first()
+    last_updated = last_updated.action_time.strftime("%Y-%m-%d")
+
+    data = {
+        'total_term': total_term,
+        'total_uncheck': total_uncheck,
+        'last_updated': last_updated
+    }
+
+    return jsonify({
+        'data': data,
+        'message': 'Get terms stat'
+    }), 200

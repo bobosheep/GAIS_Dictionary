@@ -154,11 +154,43 @@ def user_logging(view):
 
 
                     if request.method == 'POST':
-                        # add new category
+                        # add new term
                         action_part_str = request.form['tname']
                     if request.method == 'DELETE':
-                        # add new category
+                        # delete term
                         action_part_str = part
+            else:
+                args = action_part_str.split('/')
+                if args[2] == 'stat':
+                    action_part_str = '辭典資訊'
+        elif  request.blueprint == 'nwd':
+            args = action_part_str.split('/')
+            # /api/nwd/xxx
+            print(args)
+            if len(args) > 3:
+                if args[3] == 'stat':
+                    if args[4] == '0':
+                        action_part_str = '尚未篩選的新詞'
+                        if request.method == 'POST':
+                            tname = request.form.get('tname', type=str)
+                            new_term = TermDetail.objects(tname=tname).first()
+                            action = '篩選新詞'
+                            action_part = new_term
+                            action_part_str = new_term.tname
+                        elif request.method == 'DELETE':
+                            tname = request.args.get('tname', type=str)
+                            action = '過濾新詞'
+                            action_part_str = tname
+                    elif args[4] == '1':
+                        action_part_str = '已加入的新詞'
+                    elif args[4] == '2':
+                        action_part_str = '已過濾的新詞'
+
+                if args[3] == 'upload':
+                    action = '上傳檔案'
+                    filename = request.files['file'].filename
+                    action_part_str = '檔名:' + filename
+
 
         print(f'[{print_level}] User {username} {action} {action_part_str} {request_failed} @ {action_time.strftime("%Y-%m-%d %H:%M")} from {user_ip}')
         description = f'\"{username}\"{action}<{action_part_str}>{request_failed}@{action_time}從 ip:{user_ip}。'

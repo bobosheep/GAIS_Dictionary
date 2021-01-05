@@ -82,8 +82,6 @@ class Report(Document):
 class Term(Document):
     tname = StringField(unique=True)
     word_length = IntField()
-    pos = ListField(StringField())
-    chuyin = ListField(StringField())
     creator = ReferenceField(User)
     created = DateTimeField()
     editors = ListField(ReferenceField(User))
@@ -91,7 +89,9 @@ class Term(Document):
     view_cnt = IntField()
     edit_cnt = IntField()
 
-    meta = {'allow_inheritance': True}
+    meta = {
+        'allow_inheritance': True,
+    }
 
 
 class Category(Document):
@@ -124,6 +124,8 @@ class CategoryNode(Category):
 
 
 class TermDetail(Term):
+    pos = ListField(StringField())
+    chuyin = ListField(StringField())
     categories = ListField(ReferenceField(Category))
     tags = ListField(StringField())
     aliases = ListField(StringField())
@@ -135,4 +137,28 @@ class TermDetail(Term):
     meaning = StringField()
     imgs = ListField(DictField())
 
+    meta = {
+        'indexes': [{
+            'fields': ['$tname', "$chuyin", '$tags', '$aliases'],
+            'default_language': 'english',
+            'weights': {'tname': 5, 'chuyin': 2, 'tags': 3, 'aliases': 4}
+        }]
+    }
 
+class NewTerm(Document):
+    tname = StringField(unique=True)
+    word_length = IntField()
+    creator = ReferenceField(User)
+    created = DateTimeField()
+    accepts = ListField(ReferenceField(User))
+    rejects = ListField(ReferenceField(User))
+    check_time = DateTimeField()
+    checked = BooleanField()
+    is_new_term = BooleanField()
+    frequency = IntField()
+
+    @queryset_manager
+    def objects(doc_cls, queryset):
+        # This may actually also be done by defining a default ordering for
+        # the document, but this illustrates the use of manager methods
+        return queryset.order_by('-created', '-frequency')

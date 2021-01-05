@@ -25,8 +25,12 @@ def userLogToJSON(userLog):
     data['user'] = userLog.user.uname if userLog.user is not None else 'Guest'
     data['action_time'] = userLog.action_time.strftime("%Y-%m-%d %H:%M")
     part = userLog.action_part
-    if part is not None and part.cname is not None:
-       data['action_part'] = part.cname
+    if part is not None:
+        if hasattr(part, 'cname'):
+            data['action_part'] = '類別<' + part.cname + '>'
+        if hasattr(part, 'tname'):
+            data['action_part'] = '字詞<' + part.tname + '>'
+        
     
 
     return data
