@@ -130,7 +130,8 @@ dmypy.json
 .pyre/
 
 
-# flask templates and static
+# backend
+uploads/
 backend/templates
 backend/static
 
