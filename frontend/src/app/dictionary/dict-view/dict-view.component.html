@@ -1,15 +1,23 @@
-<section class="wrapper">
-    <div class="blocks" *ngFor="let nLen of term_datas">
-        <nz-divider [nzText]="title" nzOrientation="left"></nz-divider>
-        <ng-template #title>
-            <h2> <a routerLink="/dictionary/view/{{nLen.wlen}}" routerLinkActive="'activate'">{{ nLen.wlen }}字詞</a></h2>
-        </ng-template>
-        <p class="terms-wrapper">
-            <span *ngFor="let term of nLen.data">
-                <app-term  [term]="term.tname" routerLink="/dictionary/{{term.tname}}" routerLinkActive="'activate'"></app-term>
-                <!-- <a routerLink="/dictionary/{{term.tname}}" routerLinkActive="'activate'">{{ term.tname }}</a>,  -->
-            </span>
-        </p>
-        
+<section class="wrapper" >
+    <div *ngIf="term_datas else loading" >
+        <div class="blocks" *ngFor="let nLen of term_datas; index as i">
+            <nz-divider [nzText]="title" nzOrientation="left"></nz-divider>
+            <ng-template #title>
+                <h2> <a routerLink="/dictionary/view/{{nLen.wlen}}" routerLinkActive="'activate'">{{ nLen.wlen }} 字長  ({{nLen.total}}詞)</a></h2>
+            </ng-template>
+            <p class="terms-wrapper">
+                <span *ngFor="let term of nLen.data">
+                    <app-term  [term]="term.tname" routerLink="/dictionary/{{term.tname}}" routerLinkActive="'activate'"></app-term>
+                    <!-- <a routerLink="/dictionary/{{term.tname}}" routerLinkActive="'activate'">{{ term.tname }}</a>,  -->
+                </span>
+                <button nz-button (click)="loadMore(i)">查看更多</button>
+            </p>
+            
+        </div>
     </div>
+    <ng-template #loading>
+        <div style="text-align: center;margin:0 2.5em;">
+            <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+        </div>
+    </ng-template>
 </section>

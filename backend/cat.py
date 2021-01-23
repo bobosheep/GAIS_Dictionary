@@ -43,7 +43,8 @@ def CategoryNodetoJSON(cat):
             child = {
                 '_id': c.cid,
                 'cname': c.cname,
-                'terms': c.terms if 'terms' in c else None,
+                'terms_cnt' : len(c.terms) if 'terms' in c else None,
+                'terms': c.terms[:30] if 'terms' in c else None,
                 'children': [{ 'cname': cc.cname, '_id': cc.cid} for cc in c.children] if 'children' in c else None
             }
             children.append(child)

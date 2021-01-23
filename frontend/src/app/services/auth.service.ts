@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse, HttpRequest, HttpInterceptor, HttpHandler, HttpEvent, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { NzMessageService } from 'ng-zorro-antd';
 
 import { User, UserDetail } from '../interfaces/user'
@@ -21,7 +21,6 @@ export class AuthService {
 
   constructor(private http: HttpClient, private route: Router) { 
     this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('current_user')))
-    console.log(this.currentUserSubject.value)
     this.currentUser = this.currentUserSubject.asObservable()
   }
 
@@ -30,14 +29,18 @@ export class AuthService {
   }
 
   checkCurrentUser() {
-    this.http.get(`${this.server}/auth/curuser`).subscribe((ret) => {
+    return this.http.get(`${this.server}/auth/curuser`).pipe(map((ret) => {
       const userInfo = { ...this.user, ...ret['data']}
       localStorage.setItem('current_user', JSON.stringify(ret['data']));
       this.currentUserSubject.next(ret['data'])
-    }, (error) => {
-      localStorage.clear()
+      return ret
+    })).pipe(catchError((error) => {
+      console.warn(error)
+      localStorage.removeItem('current_user')
       this.currentUserSubject.next(null)
-    })
+      return throwError(error);
+
+    }))
   }
   
 
@@ -102,13 +105,40 @@ export class CanActivateEdition implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean|UrlTree>|Promise<boolean|UrlTree>|boolean|UrlTree {
-    this.as.checkCurrentUser()
-    if(this.as.user && this.as.user.level <= 1){
-        return true;
-    } else {
-        this.message.create('error', '沒權限進行編輯，請<strong>登入</strong>或是<strong>申請為編輯人員</strong>。')
-        return false;
-    }
+    console.log('hello')
+    const check = new Observable<boolean>((observer) => {
+      let watchId: number;
+
+      
+      this.as.checkCurrentUser().subscribe(
+        (ret) => {}, 
+        (error) => {
+          if (error.status === 401 || error.status === 404) {
+            this.message.create('error', '尚未登入或是 Token 已經失效，請<strong>重新登入</strong>')
+            observer.next(false);
+          } else {
+            this.message.create('error', '有 BUG ?!')
+            this.message.create('error', error.error.message)
+            observer.next(false);
+          }
+        },
+        () => {
+          if(this.as.user && this.as.user.level <= 1) {
+            observer.next(true);
+          } else {
+            this.message.create('error', '權限不足，請向管理員<strong>申請為編輯人員</strong>。')
+            observer.next(false);
+          }
+          console.log('done');
+      })
+
+      return {
+        unsubscribe() {
+          navigator.geolocation.clearWatch(watchId);
+        }
+      }
+    })
+    return check
   }
 }
 export const httpInterceptorProviders = [

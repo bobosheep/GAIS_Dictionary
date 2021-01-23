@@ -4,7 +4,7 @@
         <h3>詞分類</h3>
         <h3>Categories</h3>
     </div>
-    <ul nz-menu [nzMode]="'vertical'" style="width: 100%;" *ngIf="categories" >
+    <ul nz-menu [nzMode]="'vertical'" style="width: 100%;" *ngIf="categories else loading" >
         <li
             nz-submenu
             *ngFor="let cat of categories; index as i"
@@ -41,6 +41,12 @@
         </li>
         
     </ul>
+    
+    <ng-template #loading>
+        <div style="text-align: center;margin-top: 2.5em;">
+            <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+        </div>
+    </ng-template>
 </nav>
 <section class="content">
     <router-outlet></router-outlet>

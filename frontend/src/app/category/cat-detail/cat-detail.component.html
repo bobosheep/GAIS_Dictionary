@@ -1,5 +1,10 @@
 
-<section class="wrapper">
+<ng-template #loading>
+    <div style="text-align: center;margin:0 2.5em;">
+        <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+    </div>
+</ng-template>
+<section class="wrapper" *ngIf="catDetail else loading">
     <nz-page-header [nzTitle]="pageTitle">
         <nz-breadcrumb nz-page-header-breadcrumb>
             <nz-breadcrumb-item>
@@ -73,7 +78,7 @@
                     {{ cat_child.cname }} 
                 </h4>
                     <ng-template [ngIf]="cat_child.terms && cat_child.terms.length > 0">
-                        <nz-divider nzText="類別詞彙 ({{cat_child.terms.length}})"></nz-divider>
+                        <nz-divider nzText="類別詞彙 ({{cat_child.terms_cnt}})"></nz-divider>
                         <div class="child-content">
                             <app-term  [term]="term" *ngFor="let term of cat_child.terms"></app-term>
                         </div>

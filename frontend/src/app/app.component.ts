@@ -12,7 +12,6 @@ export class AppComponent {
   user : User;
   constructor(private auth: AuthService) {
     this.auth.currentUser.subscribe(x => {
-      console.log(x)
       this.user = x
     })
   }

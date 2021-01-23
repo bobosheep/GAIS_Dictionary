@@ -282,8 +282,8 @@ def login():
                     'avatar': user.avatar
                     # 'token': auth_token
                 }, \
-                'message': f'User {username} log in success!'
-                }), success_code
+                    'message': f'User {username} log in success!'
+            }), success_code
 
     return jsonify({
                 'data' : None, \
@@ -326,6 +326,7 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = User.objects(uid=user_id).first()
+    print(g.user)
   
 def login_required(view):
     @functools.wraps(view)

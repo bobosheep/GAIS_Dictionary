@@ -4,6 +4,7 @@ export interface Category {
     parent?: string;
     children?: Category[];
     terms?: string[]; 
+    terms_cnt?: number;
 }
 
 export interface CategoryDetail {
@@ -23,4 +24,5 @@ export interface CategoryDetail {
     view_cnt?: Number;
     edit_cnt?: Number;
     ancestors?: string[];
+    image_urls?: string;
 }

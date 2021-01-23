@@ -15,9 +15,9 @@ bp = Blueprint('term', __name__, url_prefix='/terms')
 
 def TermDetailtoJSON(term):
     data = json.loads(term.to_json())
-    data['created'] = term.created.strftime("%Y-%m-%d (%H:%M)")
+    data['created'] = term.created.strftime("%Y-%m-%d (%H:%M)") if term.last_updated is not None else ''
     data['creator'] = term.creator.uname if term.creator is not None else None
-    data['editors'] = [ u.uname for u in term.editors ]
+    data['editors'] = [ u.uname for u in term.editors ] if term.creator is not None else None
     # data['children'] = [{ 'cname': c.cname, '_id': c.cid} for c in cat.children] if cat.children is not None else []
     data['last_updated'] = term.last_updated.strftime("%Y-%m-%d %H:%M") if term.last_updated is not None else ''
     
@@ -52,23 +52,32 @@ class TermAPI(MethodView):
             }), self.stat_code
         else:
             # return all terms w/ params wlen(0=all, 1-8, df:0), size(df:20)
-            wlen = request.args.get('wlen', 0, type=int) 
+            wlen = request.args.get('wlen', 0, type=int)
+            page = request.args.get('page', 0, type=int)
             size = request.args.get('size', 20, type=int)
 
             self.data = []
             if wlen is 0:
                 for n in range(1, 9):
-                    terms = TermDetail.objects(word_length=n).exclude('imgs').exclude('volume').exclude('meaning').limit(size)
+                    b = page * size 
+                    e = page * size + size 
+                    terms = TermDetail.objects(word_length=n).order_by('-last_updated').only('tname').skip(b).limit(size)
+                    # terms = TermDetail.objects(word_length=n).exclude('imgs').exclude('volume').exclude('meaning')
+                    count = terms.count()
                     datas = []
                     for term in terms:
                         datas.append(TermDetailtoJSON(term))
-                    self.data.append({'wlen': n, 'size': size, 'data': datas})
+                    self.data.append({'wlen': n, 'total': count, 'page': page, 'size': size, 'data': datas})
             else:
-                terms = TermDetail.objects(word_length=wlen).exclude('imgs').exclude('volume').exclude('meaning').limit(size)
+                b = page * size 
+                e = page * size + size 
+                terms = TermDetail.objects(word_length=wlen).only('tname').skip(b).limit(size)
+                # terms = TermDetail.objects(word_length=wlen).exclude('imgs').exclude('volume').exclude('meaning').skip(b).limit(size)
+                count = terms.count()
                 datas = []
                 for term in terms:
                     datas.append(TermDetailtoJSON(term))
-                self.data.append({'wlen': wlen, 'size': size, 'data': datas})
+                self.data.append({'wlen': wlen, 'total': count, 'page': page, 'size': size, 'data': datas})
 
             return jsonify({
                 'datas'      : self.data,    \

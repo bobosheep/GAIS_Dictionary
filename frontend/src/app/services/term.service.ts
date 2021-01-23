@@ -16,8 +16,8 @@ export class TermService {
     getTermStat() {
         return this.http.get<{data: any, message: string}>(`${this.server}/terms/stat`)
     }
-    getTermList(wlen: number, size: number) {
-        return this.http.get<TermAPIResponse>(`${this.server}/terms/?wlen=${wlen}&size=${size}`)
+    getTermList(wlen: number, page: number, size: number) {
+        return this.http.get<any>(`${this.server}/terms/?wlen=${wlen}&page=${page}&size=${size}`)
     }
     getTerm(tname: string) {
         return this.http.get<TermAPIResponse>(`${this.server}/terms/${tname}`)

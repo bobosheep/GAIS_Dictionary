@@ -29,15 +29,6 @@ export class CatDetailComponent implements OnInit {
       this.cid = param.cid
       this.cs.getCategory(this.cid).subscribe((ret) => {
         this.catDetail = ret.data
-        this.catDetail.children.forEach((v, idx, arr) => {
-          if(v){
-            console.log(v)
-            // this.cs.getTerms(v._id).subscribe((ret) => {
-            //   this.catDetail.children[idx] = {...this.catDetail.children[idx], ...ret.data}
-            // })
-
-          }
-        })
       })
     }, (error) => {
       console.log(error)

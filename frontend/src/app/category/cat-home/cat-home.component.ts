@@ -17,6 +17,7 @@ export class CatHomeComponent implements OnInit {
     this.cs.getCategoryStat().subscribe((ret) => {
       this.cat_list = ret.datas
       this.cat_list.sort((a, b) => b.children.length - a.children.length )
+      console.log(this.cat_list)
       
     })
   }

@@ -19,18 +19,30 @@ export class DictViewComponent implements OnInit {
         this.route.params.subscribe((param) => {
             console.log(Object.values(param))
             if (param.wlen){
-                let size = Math.floor(100 / param.wlen);
-                this.ts.getTermList(param.wlen, 100).subscribe((ret) => {
+                this.ts.getTermList(param.wlen, 0, 50).subscribe((ret) => {
                     this.term_datas = ret.datas
                 })
 
             }
             else{
-                this.ts.getTermList(0, 30).subscribe((ret) => {
+                this.ts.getTermList(0, 0, 10).subscribe((ret) => {
                     this.term_datas = ret.datas
                 })
             }
         })
 
+    }
+    loadMore(idx) {
+        let len: number;
+        let page: number;
+        let size: number;
+        len = this.term_datas[idx].wlen;
+        page = this.term_datas[idx].page + 1;
+        size = this.term_datas[idx].size;
+        
+        this.ts.getTermList(len, page, size).subscribe((ret) => {
+            this.term_datas[idx].data = [...this.term_datas[idx].data, ...ret.datas[0].data]
+            this.term_datas[idx].page = ret.datas[0].page
+        })
     }
 }
