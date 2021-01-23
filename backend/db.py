@@ -136,12 +136,14 @@ class TermDetail(Term):
     frequency = IntField()
     meaning = StringField()
     imgs = ListField(DictField())
+    text_search = StringField()
 
     meta = {
         'indexes': [{
-            'fields': ['$tname', "$chuyin", '$tags', '$aliases'],
-            'default_language': 'english',
-            'weights': {'tname': 5, 'chuyin': 2, 'tags': 3, 'aliases': 4}
+            'fields': ['$tname','$text_search'],
+            'default_language': 'none',
+            'weights': {'tname': 10, 'text_search': 2},
+            'name': 'my_text_search'
         }]
     }
 

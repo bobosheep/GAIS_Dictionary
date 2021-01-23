@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TermService } from 'src/app/services/term.service';
 
 @Component({
@@ -12,7 +12,7 @@ export class DictHomeComponent implements OnInit {
 //   categories: Array<Category> = [];
 //   isOpen: boolean[] = []
 
-  constructor(private ts: TermService, private route: Router) { 
+  constructor(private ts: TermService, private router: Router, private route: ActivatedRoute) { 
   }
 
   searchTerm: string = '';
@@ -33,7 +33,7 @@ export class DictHomeComponent implements OnInit {
  
   search() {
     if (this.searchTerm !== '') {
-      this.route.navigateByUrl(`/dictionary/${this.searchTerm}`)
+      this.router.navigate(['search'], {relativeTo: this.route, queryParams: {q: this.searchTerm}})
     }
   }
 }

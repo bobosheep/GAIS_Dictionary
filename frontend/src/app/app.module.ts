@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { NotFoundComponent } from './page-not-found/not-found.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SearchModule } from './components/search_results/search-result.module';
 
 
 
@@ -23,7 +24,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserAnimationsModule,
     UserModule,
     AppRoutingModule,
-    SharedModule
+    SharedModule,
+    SearchModule
   ],
   bootstrap: [AppComponent]
 })

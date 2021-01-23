@@ -50,22 +50,6 @@ def start_app(config=None):
     # Admin API  begin w/ admin
     app.register_blueprint(admin.bp)    
 
-    # Other API
-    @app.route("/search", methods=["GET"])
-    def search():
-        tname = request.args.get('term', type=str)
-        term_detail = db.TermDetail.objects().search_text(tname).first()
-        
-        if term_detail is not None:
-            return jsonify({
-                'data': term.TermDetailtoJSON(term_detail),
-                'message': f'Search result of {tname}!'
-            }), 200
-        else:
-            return jsonify({
-                'data': None,
-                'message': f'{tname} not found!'
-            }), 404
     @app.route("/<regex(r'(.*?)\.(svg|json|txt|png|ico|js|css|jpg)$'):file>", methods=["GET"])
     def public(file):
         return send_from_directory('static', file), 200

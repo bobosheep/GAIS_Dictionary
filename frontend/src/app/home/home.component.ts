@@ -20,11 +20,11 @@ export class HomeComponent implements OnInit {
   search() {
     console.log(this.searchTerm)
     if (this.searchTerm !== ''){
-      this.route.navigateByUrl(`/dictionary/${this.searchTerm}`)
+      this.route.navigateByUrl(`/search?q=${this.searchTerm}`)
     }
   }
   randomSearch() {
     let idx = Math.ceil( Math.random() * 12);
-    this.route.navigateByUrl(`/dictionary/${this.randomTerms[idx]}`)
+    this.route.navigateByUrl(`/search?q=${this.randomTerms[idx]}`)
   }
 }

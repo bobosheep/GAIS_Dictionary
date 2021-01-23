@@ -225,3 +225,33 @@ def stat():
         'data': data,
         'message': 'Get terms stat'
     }), 200
+
+    
+@bp.route('/search', methods=['GET'])
+@user_logging
+def search():
+    tname = request.args.get('term', '', type=str)
+    page = request.args.get('page', 0, type=int)
+    size = request.args.get('size', 10, type=int)
+    b = page * size
+    if tname is '':
+        return jsonify({
+            'data': None,
+            'message' : 'Bad params'
+        }), 400
+    terms = TermDetail.objects.search_text(tname).order_by('$text_score').skip(b).limit(size)
+    datas = []
+    for term in terms:
+        data = TermDetailtoJSON(term)
+        datas.append(data)
+    count = terms.count()
+    return jsonify({
+        'data': {
+            'search_term': tname,
+            'page' : page,
+            'size' : size,
+            'total_count': count,
+            'results': datas
+        },
+        'message': f'Search result of {tname}!'
+    }), 200

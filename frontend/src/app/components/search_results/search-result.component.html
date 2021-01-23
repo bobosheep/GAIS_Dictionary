@@ -1,0 +1,54 @@
+<!-- 搜尋列 -->
+<section class="container">
+    <div class="title">
+        <span style="color: tomato;">G</span>
+        <span style="color: #9b4dca;">D</span>
+    </div>
+    
+    <div class="search-wrapper">
+        <nz-input-group nzSearch  [nzAddOnAfter]="suffixButton">
+            <input nz-input type="text" placeholder="Search a word" [(ngModel)]="query" (keyup.enter)="goSearch()">
+        </nz-input-group>
+        <ng-template #suffixButton>
+            <button nz-button nzType="primary" nzSize="large"  (click)="goSearch()" nzSearch>Search</button>
+        </ng-template>
+        
+    </div>
+</section>
+
+<!-- 搜尋結果 -->
+<section class="container" *ngIf="stat !== 'init'">
+    <div *ngIf="stat === 'finish' else loading">
+        <div class="search-info">
+            <nz-pagination [nzPageIndex]="page + 1" [nzTotal]="results.total_count " 
+                           [nzPageSize]="size" [nzShowTotal]="rangeTemplate" 
+                           (nzPageIndexChange)="searchFromPage($event)"
+            >
+            </nz-pagination>
+            <ng-template #totalTemplate let-total> Total {{ total }} items </ng-template>
+            <ng-template #rangeTemplate let-range="range" let-total>
+                搜尋 {{ results.search_term }} 共 {{ total }} 結果，顯示第 {{ range[0] }}-{{ range[1] }} 的結果
+            </ng-template>
+        </div>
+        <div class="results-wrapper">
+            <div class="results">
+                <div class="result" *ngFor="let term of results.results" (click)="goTermPage(term.tname)" >
+                    <div class="title">{{term.tname}}</div>
+                    <div class="info">
+                        <div class="v-cnt"><i nz-icon nzType="eye" style="margin-right: 4px;"></i> {{term.view_cnt}}</div>
+                        <div class="e-cnt"><i nz-icon nzType="edit" style="margin-right: 4px;"></i> {{term.edit_cnt}}</div> 
+                        <div class="fq">詞頻: {{term.frequency}}</div>   
+                        <div class="last-updated">最近更新時間: {{term.last_updated}}</div>
+                    </div>
+                    <div class="arrow-icon"><i nz-icon nzType="arrow-right" nzTheme="outline"></i></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <ng-template #loading>
+        <div style="text-align: center;margin:0 2.5em;">
+            <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+        </div>
+    </ng-template>
+</section>

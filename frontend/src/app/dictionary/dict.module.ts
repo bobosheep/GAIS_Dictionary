@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from '../shared.module';
+import { SearchModule } from '../components/search_results/search-result.module';
 import { ComponentsModule } from '../components/components.module';
 
 import { DictComponent } from './dict.component';
@@ -27,7 +28,8 @@ import { NWDService } from '../services/nwd.service';
     imports: [
         DictRoutingModule,
         SharedModule,
-        ComponentsModule
+        ComponentsModule,
+        SearchModule
     ], 
     providers: [
         TermService, NWDService

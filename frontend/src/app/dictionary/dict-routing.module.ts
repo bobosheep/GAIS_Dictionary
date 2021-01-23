@@ -8,6 +8,7 @@ import { DictViewComponent } from './dict-view/dict-view.component';
 import { DictNWDComponent } from './dict-nwd/dict-nwd.component';
 import { DictComponent } from  './dict.component'
 import { DictNewWordComponent } from './dict-new-word/dict-new-word.component';
+import { SearchResultComponent } from '../components/search_results/search-result.component';
 
 
 const DictRoutes: Routes = [
@@ -43,7 +44,9 @@ const DictRoutes: Routes = [
           }
         ]
       },{
-    //   },{
+        path: 'search',
+        component: SearchResultComponent
+      },{
     //     path: 'edit',
     //     canActivate: [CanActivateEdition],
     //     component: CatEditComponent,

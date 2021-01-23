@@ -29,6 +29,7 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -66,7 +67,8 @@ registerLocaleData(en);
     NzListModule,
     NzSkeletonModule,
     NzEmptyModule,
-    NzSpinModule
+    NzSpinModule,
+    NzPaginationModule
   ],
   providers: [
     AuthService, 

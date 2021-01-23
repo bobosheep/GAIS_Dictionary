@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { SearchResultComponent } from './components/search_results/search-result.component';
 import { HomeComponent } from './home/home.component';
 import { NotFoundComponent } from './page-not-found/not-found.component';
 import { CanActivateAdmin } from './services/admin.service';
@@ -22,6 +23,10 @@ const routes: Routes = [
   { path: 'admin',
     canActivate: [CanActivateAdmin],
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+  },
+  {
+    path: 'search',
+    component: SearchResultComponent
   },
   { path: 'user', 
     children: [
