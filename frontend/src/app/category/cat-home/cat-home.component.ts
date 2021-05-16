@@ -22,4 +22,7 @@ export class CatHomeComponent implements OnInit {
     })
   }
 
+  openDownloadOptions() {
+    console.log('Open')
+  }
 }
