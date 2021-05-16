@@ -134,6 +134,7 @@ dmypy.json
 uploads/
 backend/templates
 backend/static
+db.*
 
 # word2vec model
 word2vec/models
@@ -141,4 +142,5 @@ word2vec/models
 
 # corpus data
 corpus/
+
 

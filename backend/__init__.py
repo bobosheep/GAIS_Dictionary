@@ -20,6 +20,7 @@ def start_app(config=None):
     app.config['DEBUG'] = config['DEBUG']
     app.config['SECRET_KEY'] = config['SECRET_KEY']
     app.config['UPLOAD_FOLDER'] = config['UPLOAD_FOLDER']
+    app.config['DOWNLOAD_FOLDER'] = config['DOWNLOAD_FOLDER']
     app.config['ALLOWED_EXTENSIONS'] = config['ALLOWED_EXTENSIONS']
     if config['CORS']:
         CORS(app, supports_credentials=True)

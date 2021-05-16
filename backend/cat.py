@@ -1,9 +1,10 @@
 import json
 import uuid
+import os
 from datetime import datetime
 from flask.views import MethodView
 from flask import (
-    jsonify, Blueprint, request, g
+    jsonify, Blueprint, request, g, current_app
 )
 
 from backend.db import CategoryNode, User
@@ -605,7 +606,6 @@ def getCategoryStat():
     cats = CategoryNode.objects(is_root=True).all_fields()
 
     datas = []
-    ### TODO: change to recursive
     for cat in cats:
         child_cats = CategoryNode.objects(parent__exists=True, parent=cat).exclude('seeds').exclude('terms').exclude('remove_terms')
         
@@ -622,3 +622,66 @@ def getCategoryStat():
             'message' : 'Get category stat successfully!'
         }), 200
 
+
+@bp.route('/download', methods=['GET'])
+@user_logging
+def downloadCategory():
+    parts           = request.args['cat'] if 'cat' in request.args else 'all'
+    responseType    = request.args['type'] if 'type' in request.args else 'json'
+    print(parts)
+
+    cats = None
+    termCats = {}
+    parts = parts.split(',')
+    print(parts)
+    if parts[0] == 'all':
+        print('all')
+        cats = CategoryNode.objects().only('cname').only('seeds').only('terms')
+    else:
+        for part in parts:
+            cats = CategoryNode.objects(cname=part).only('cname').only('seeds').only('terms')
+
+            for cat in cats:
+                terms = cat.terms + cat.seeds
+                terms = list(set(terms))
+                for term in terms:
+                    if term not in termCats:
+                        termCats[term] = {
+                            'name': term,
+                            'cats': [cat.cname]
+                        }
+                    else:
+                        termCats[term]['cats'].append(cat.cname)
+    if responseType == 'file':
+        filename = os.path.join(current_app.config['DOWNLOAD_FOLDER'], 'classification_term.txt')
+        
+        with open(filename, 'w', encoding='utf-8') as fp:
+            for term in termCats:
+                fp.write(f'{term}\tC:')
+                for i, cat in enumerate(termCats[term]['cats']):
+                    if i != 0:
+                        fp.write(', ')
+                    fp.write(cat)
+                fp.write('\n')
+        return 'success', 200
+        
+    elif responseType == 'json':
+        datas = termCats
+        # datas = []
+        # for term in termCats:
+        #     t = termCats[term]
+        #     datas.append({
+        #         'term': t['name'],
+        #         'term_len': len(t['name']),
+        #         'cats': t['cats']
+        #     })
+        return jsonify({
+                'datas': datas,   \
+                'message' : 'Download category successfully!'
+            }), 200
+    
+    else:
+        return jsonify({
+                'datas': None,   \
+                'message' : 'Wrong request arguement!'
+            }), 400
