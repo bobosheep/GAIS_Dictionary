@@ -4,10 +4,9 @@ import { NewWord } from './new_word';
 import { Term, TermDetail } from './term';
 import { User, UserDetail } from './user';
 
-
 export interface CatAPIResponse {
-    data?:  Category | CategoryDetail ;
-    datas? : Array<Category> | Array<CategoryDetail>;
+    data?:  Category | CategoryDetail | any;
+    datas? : Array<Category> | Array<CategoryDetail> | Array<any>;
     message: string | undefined;
 }
 export interface UserAPIResponse {
