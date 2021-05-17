@@ -41,7 +41,7 @@ def user_logging(view):
         action_time = datetime.now()
         action_part_str = request.path
         action = method[request.method]
-        level = LEVEL[request.method] if response[1] / 100  < 5 else 2
+        level = LEVEL[request.method] if response[1] / 100  < 5 else 2 
         print_level = 'INFO' if level == 0 else 'WARN' if level == 1 else 'ERROR'
         stat = True if response[1] / 100 < 3 else False
         request_failed = '成功' if stat else '失敗'

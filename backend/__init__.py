@@ -58,6 +58,8 @@ def start_app(config=None):
     @app.route('/home', methods=['GET'])
     def mainpage():
         return render_template('index.html'), 200
+    
+    
     @app.errorhandler(HTTPException)
     def page_not_found(e):
         return render_template('index.html'), 404

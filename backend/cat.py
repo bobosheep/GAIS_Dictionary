@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from flask.views import MethodView
 from flask import (
-    jsonify, Blueprint, request, g, current_app
+    jsonify, Blueprint, request, g, current_app, send_file, send_from_directory
 )
 
 from backend.db import CategoryNode, User
@@ -623,11 +623,33 @@ def getCategoryStat():
         }), 200
 
 
+def getCategoryTerms(cats) :
+    termCats = {}
+    for cat in cats:
+        terms = cat.terms + cat.seeds
+        terms = list(set(terms))
+        print(f'{cat.cname} parent:', getParentRecursive(cat))
+        print(f'{cat.cname} parent: {cat.parent}')
+        for term in terms:
+            if term not in termCats:
+                termCats[term] = {
+                    'name': term,
+                    'cats': [cat.cname],
+                    'parent_cats': getParentRecursive(cat)
+                }
+            else:
+                termCats[term]['cats'].append(cat.cname)
+                termCats[term]['parent_cats'] += getParentRecursive(cat)
+                termCats[term]['cats'] = list(set(termCats[term]['cats']))
+                termCats[term]['parent_cats'] = list(set(termCats[term]['parent_cats']))
+    return termCats
+
+
 @bp.route('/download', methods=['GET'])
 @user_logging
 def downloadCategory():
-    parts           = request.args['cat'] if 'cat' in request.args else 'all'
-    responseType    = request.args['type'] if 'type' in request.args else 'json'
+    parts           = str(request.args['cats']) if 'cats' in request.args else 'all'
+    responseType    = str(request.args['type']) if 'type' in request.args else 'json'
     print(parts)
 
     cats = None
@@ -636,34 +658,42 @@ def downloadCategory():
     print(parts)
     if parts[0] == 'all':
         print('all')
-        cats = CategoryNode.objects().only('cname').only('seeds').only('terms')
+        cats = CategoryNode.objects().only('cname').only('seeds').only('terms').only('parent')
+        termCats = getCategoryTerms(cats)
+
     else:
         for part in parts:
-            cats = CategoryNode.objects(cname=part).only('cname').only('seeds').only('terms')
+            cats = CategoryNode.objects(cname=part).only('cname').only('seeds').only('terms').only('parent')
+            termCats.update(getCategoryTerms(cats))
 
-            for cat in cats:
-                terms = cat.terms + cat.seeds
-                terms = list(set(terms))
-                for term in terms:
-                    if term not in termCats:
-                        termCats[term] = {
-                            'name': term,
-                            'cats': [cat.cname]
-                        }
-                    else:
-                        termCats[term]['cats'].append(cat.cname)
     if responseType == 'file':
         filename = os.path.join(current_app.config['DOWNLOAD_FOLDER'], 'classification_term.txt')
-        
+        print(filename)
         with open(filename, 'w', encoding='utf-8') as fp:
             for term in termCats:
-                fp.write(f'{term}\tC:')
+                fp.write(f'{term}\tc:')
                 for i, cat in enumerate(termCats[term]['cats']):
                     if i != 0:
-                        fp.write(', ')
+                        fp.write(',')
+                    fp.write(cat)
+                fp.write(f'\tC:')
+                for i, cat in enumerate(termCats[term]['parent_cats']):
+                    if i != 0:
+                        fp.write(',')
                     fp.write(cat)
                 fp.write('\n')
-        return 'success', 200
+            fp.close()
+        try:
+            
+            return send_file(filename, attachment_filename='stat.txt', as_attachment=True), 200, {
+            'Cache-Control':  'no-cache, no-store, must-revalidate, post-check=0, pre-check=0',
+            'Pragma': 'no-cache',
+            'Expires': '0'}
+        except Exception as e:
+            return jsonify({
+                'datas': None,
+                'message': 'Download file failed'
+            }), 400
         
     elif responseType == 'json':
         datas = termCats
