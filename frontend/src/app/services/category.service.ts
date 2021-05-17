@@ -17,6 +17,17 @@ export class CategoryService {
 
     
     // Category API
+    downloadCategoryDictionary(cats: Array<string>, downloadType: string = 'file') {
+        let part = cats.join(',');
+        let headers;
+        console.log(part);
+        headers = new Headers({
+            'Cache-Control':  'no-cache, no-store, must-revalidate, post-check=0, pre-check=0',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
+        return this.http.get(`${this.server}/classes/download?cats=${part}&type=${downloadType}`, {headers, responseType: 'blob'})
+    }
     getCategoryList() {
         return this.http.get<CatAPIResponse>(`${this.server}/classes/list`)
     }

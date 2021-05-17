@@ -31,3 +31,28 @@
         </div>
     </ng-template>
 </section>
+
+<nz-modal   [(nzVisible)]="modal_visibility" 
+            nzTitle="下載分類詞" 
+            [nzClosable]="false" 
+            [nzMaskClosable]="true"
+            [nzContent]="selectCategory">
+    <div *nzModalFooter>
+      <button nz-button nzType="default" (click)="handleCancel()">取消</button>
+      <button nz-button nzType="primary" (click)="handleOk()" [nzLoading]="isDownloading">下載</button>
+    </div>
+</nz-modal>
+
+<ng-template #selectCategory>
+    <nz-tree
+      [nzData]="nodes"
+      nzCheckable
+      nzMultiple
+      [nzExpandedIcon]="multiExpandedIconTpl"
+    >
+        <ng-template #multiExpandedIconTpl  let-node let-origin="origin">
+            <i *ngIf="!origin.isLeaf" nz-icon [nzType]="node.isExpanded ? 'folder-open' : 'folder'" ></i>
+        </ng-template>
+        
+    </nz-tree>
+</ng-template>

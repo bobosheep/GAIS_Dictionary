@@ -118,7 +118,7 @@ export class CatEditComponent implements OnInit {
       nzContent: content,
       nzFooter: [
         {
-          type: 'outline',
+          type: 'default',
           label: '取消',
           onClick: () =>  modal.destroy(false)
         },

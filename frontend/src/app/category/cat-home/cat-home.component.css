@@ -62,3 +62,7 @@ h1.title {
 .class-cover {
     background-image: url();
 }
+.content-wrapper{
+    max-height: 500px;
+    overflow: auto;
+}

@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { NzTreeModule } from 'ng-zorro-antd/tree'
 
 import { CategoryRoutingModule } from './cat-routing.module';
 import { CatHomeComponent } from './cat-home/cat-home.component';
@@ -23,7 +24,8 @@ import { ComponentsModule } from '../components/components.module';
     imports: [
         CategoryRoutingModule,
         SharedModule,
-        ComponentsModule
+        ComponentsModule,
+        NzTreeModule
     ], 
     providers: [
       CategoryService, httpInterceptorProviders, CanActivateEdition
